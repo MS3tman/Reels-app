@@ -1,0 +1,25 @@
+name: Push and Deploy Laravel Project      
+
+on:                     
+  push:    
+    branches: [main]    
+  pull_request:       
+    branches: [main]  
+
+jobs:         
+  build-and-push:   
+    runs-on: ubuntu-latest  
+
+    steps:    
+      - name: Checkout code 
+        uses: actions/checkout@v2  
+
+      - name: log in VPS  
+        uses: appleboy/ssh-action@master  
+        with:           
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            docker exec -i 4be /bin/bash -c 'cd /var/www/html/Reels-app/ && git pull origin main'
