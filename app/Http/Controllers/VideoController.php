@@ -71,5 +71,59 @@ class VideoController extends Controller
     }
 
 
+//     <?php
+
+// namespace App\Http\Controllers;
+
+// use Illuminate\Http\Request;
+// use Illuminate\Support\Facades\Storage;
+// use Symfony\Component\Process\Process;
+
+// class VideoController extends Controller
+// {
+//     public function uploadVideo(Request $request)
+//     {
+//         // Validate and store the uploaded video
+//         $videoPath = $request->file('video')->store('videos');
+
+//         // Process the uploaded video
+//         $segmentsDirectory = $this->splitVideoIntoSegments($videoPath);
+
+//         // Return the URL to the manifest file
+//         $manifestUrl = Storage::url($segmentsDirectory . '/playlist.m3u8');
+//         return response()->json(['manifest_url' => $manifestUrl]);
+//     }
+
+//     protected function splitVideoIntoSegments($videoPath)
+//     {
+//         // Define output directory for segments
+//         $segmentsDirectory = 'segments/' . pathinfo($videoPath, PATHINFO_FILENAME);
+
+//         // Ensure the segments directory exists
+//         Storage::makeDirectory($segmentsDirectory);
+
+//         // Run FFmpeg command to split the video into segments
+//         $process = new Process([
+//             'ffmpeg',
+//             '-i', storage_path('app/' . $videoPath),
+//             '-c:v', 'copy',
+//             '-c:a', 'copy',
+//             '-map', '0',
+//             '-f', 'segment',
+//             '-segment_time', '10', // 10 seconds per segment
+//             '-segment_list', storage_path('app/' . $segmentsDirectory . '/playlist.m3u8'),
+//             storage_path('app/' . $segmentsDirectory . '/output_segment_%03d.ts')
+//         ]);
+//         $process->run();
+
+//         if (!$process->isSuccessful()) {
+//             throw new \RuntimeException('Failed to split video into segments');
+//         }
+
+//         return $segmentsDirectory;
+//     }
+// }
+
+
     
 }
