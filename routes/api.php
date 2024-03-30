@@ -19,4 +19,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('video-chunk', [VideoController::class, 'uploadChunk']);
+Route::post('upload-video', [VideoController::class, 'uploadChunks']);
