@@ -19,7 +19,7 @@ class VideoController extends Controller
             'total_chunks'=>'required',
             'chunk'=>'required',
             'chunk_index'=>'required',
-            'Advertisement_id'=>'required'
+            // 'Advertisement_id'=>'required'
         ]);
         if($validator->fails()){
             return response()->json(['errors'=>$validator->errors()]);
@@ -87,9 +87,6 @@ class VideoController extends Controller
             }
         }
     }
-
-
-    
 
     
 }
