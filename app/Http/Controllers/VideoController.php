@@ -13,23 +13,27 @@ use Illuminate\Support\Str;
 
 class VideoController extends Controller
 {
+    protected $filename;
+
+
     public function uploadChunks(Request $request){
         $validator = Validator::make($request->all(), [
             'filename'=>'required',
             'total_chunks'=>'required',
-            'chunk'=>'required',
+            'chunk'=>'required|file',
             'chunk_index'=>'required',
             // 'Advertisement_id'=>'required'
         ]);
         if($validator->fails()){
             return response()->json(['errors'=>$validator->errors()]);
         }
+        $video = base64_decode($request->chunk);
+        return response($video);
         if ($request->hasFile('chunk')) {
             $chunk = $request->file('chunk');
             $chunkIndex = $request->input('chunk_index');
             $totalChunks = $request->input('total_chunks');
             $filename = $request->input('filename');
-            // Store the chunk in a temporary folder
             $chunkTempFolder = 'public/tempChunks';
             $chunk->storeAs($chunkTempFolder, $filename . '-' . $chunkIndex);
             // Check if all chunks are received and assembled
@@ -87,6 +91,21 @@ class VideoController extends Controller
             }
         }
     }
+
+
+
+
+
+    public function splitVideo(){
+
+    }
+
+
+
+
+
+
+
 
     
 }
