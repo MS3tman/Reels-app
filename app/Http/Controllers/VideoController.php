@@ -40,11 +40,12 @@ class VideoController extends Controller
                 $this->cleanUpTemporaryFolder($chunkTempFolder);
                 ///////// here we will call on the method for change video format to HLS format & user Id ///////////////
                 // $HlsData is a array have to variable 1.hlsFormatDirectory 2.manifestFileName to store it in database with specific user Id.
-                $HlsData = (new HLSService())->hlsFormat($videoPath);
-                $newVideo = new Video();
-                $newVideo->hls_format_path = $HlsData['hlsFormatDirectory'];
-                $newVideo->manifest_file_name = $HlsData['manifestFileName'];
-                $newVideo->save();
+                // $HlsData = (new HLSService())->hlsFormat($videoPath);
+                // $newVideo = new Video();
+                // $newVideo->hls_format_path = $HlsData['hlsFormatDirectory'];
+                // $newVideo->manifest_file_name = $HlsData['manifestFileName'];
+                // $newVideo->owner_id = $request->owner_id;
+                // $newVideo->save();
                 return response()->json(['message' => 'Video uploaded successfully!']);
             }
             // Return success for current chunk, client sends the next chunk
