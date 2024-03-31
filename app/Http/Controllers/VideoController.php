@@ -19,7 +19,7 @@ class VideoController extends Controller
             'total_chunks'=>'required',
             'chunk'=>'required',
             'chunk_index'=>'required',
-            'owner_id'=>'required'
+            'Advertisement_id'=>'required'
         ]);
         if($validator->fails()){
             return response()->json(['errors'=>$validator->errors()]);
@@ -44,7 +44,7 @@ class VideoController extends Controller
                 // $newVideo = new Video();
                 // $newVideo->hls_format_path = $HlsData['hlsFormatDirectory'];
                 // $newVideo->manifest_file_name = $HlsData['manifestFileName'];
-                // $newVideo->owner_id = $request->owner_id;
+                // $newVideo->owner_id = $request->Advertisement_id;
                 // $newVideo->save();
                 return response()->json(['message' => 'Video uploaded successfully!']);
             }
