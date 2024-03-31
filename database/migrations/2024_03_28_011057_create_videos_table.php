@@ -13,7 +13,11 @@ return new class extends Migration
     {
         Schema::create('videos', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('owner_id')->unsigned()->nullable(false);
+            $table->string('hls_format_path')->nullable(false);
+            $table->string('manifest_file_name')->nullable(false);
             $table->timestamps();
+            $table->foreign('owner_id')->references('id')->on('users');
         });
     }
 

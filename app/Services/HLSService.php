@@ -45,7 +45,7 @@ class HLSService
         }
         // Store the manifest filename in the database
         $manifestFileName = $fileName . '_playlist.m3u8';
-        $HlsData = [$hlsFormatDirectory, $manifestFileName];
+        $HlsData = ['hlsFormatDirectory'=>$hlsFormatDirectory, 'manifestFileName'=>$manifestFileName];
         return $HlsData;
     }
 
