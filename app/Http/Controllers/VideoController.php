@@ -17,7 +17,7 @@ class VideoController extends Controller
             'filename'=>'required',
             'total_chunks'=>'required',
             'chunk'=>'required',
-            'chunk_index'=>'request',
+            'chunk_index'=>'required',
             'owner_id'=>'required'
         ]);
         if($validator->fails()){
