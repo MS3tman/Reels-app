@@ -78,11 +78,11 @@ class VideoController extends Controller
             return response()->json(['errors'=>$validator->errors()]);
         }
         if ($request->hasFile('chunk')) {
-            $chunk = $request->file('chunk');
+            //$chunk = $request->file('chunk');
             // $chunkIndex = $request->input('chunk_index');
             // $totalChunks = $request->input('total_chunks');
             // $filename = $request->input('filename');
-            
+            $chunk = $request->chunk;
             $chunkIndex = 0;
             $totalChunks = 5;
             $filename = "demo";
