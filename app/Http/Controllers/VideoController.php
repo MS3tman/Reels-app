@@ -78,10 +78,14 @@ class VideoController extends Controller
             return response()->json(['errors'=>$validator->errors()]);
         }
         if ($request->hasFile('chunk')) {
-            $chunk = $request->file('chunk');
-            $chunkIndex = $request->input('chunk_index');
-            $totalChunks = $request->input('total_chunks');
-            $filename = $request->input('filename');
+            // $chunk = $request->file('chunk');
+            // $chunkIndex = $request->input('chunk_index');
+            // $totalChunks = $request->input('total_chunks');
+            // $filename = $request->input('filename');
+            $chunk = $request->chunk;
+            $chunkIndex = $request->chunk_index;
+            $totalChunks = $request->total_chunks;
+            $filename = $request->filename;
             $chunkTempFolder = 'public/tempChunks';
             $chunk->storeAs($chunkTempFolder, $filename . '-' . $chunkIndex);
             // Check if all chunks are received and assembled
