@@ -70,7 +70,7 @@ class VideoController extends Controller
         $validator = Validator::make($request->all(), [
             'filename'=>'required',
             'total_chunks'=>'required',
-            'chunk'=>'required',
+            'chunk'=>'required|file',
             'chunk_index'=>'required',
             // 'Advertisement_id'=>'required'
         ]);
