@@ -68,24 +68,24 @@ class VideoController extends Controller
 
     public function uploadChunks(Request $request){
         $validator = Validator::make($request->all(), [
-            'filename'=>'required',
-            'total_chunks'=>'required',
+           // 'filename'=>'required',
+           // 'total_chunks'=>'required',
             'chunk'=>'required|file',
-            'chunk_index'=>'required',
+           // 'chunk_index'=>'required',
             // 'Advertisement_id'=>'required'
         ]);
         if($validator->fails()){
             return response()->json(['errors'=>$validator->errors()]);
         }
         if ($request->hasFile('chunk')) {
-            // $chunk = $request->file('chunk');
+            $chunk = $request->file('chunk');
             // $chunkIndex = $request->input('chunk_index');
             // $totalChunks = $request->input('total_chunks');
             // $filename = $request->input('filename');
-            $chunk = $request->chunk;
-            $chunkIndex = $request->chunk_index;
-            $totalChunks = $request->total_chunks;
-            $filename = $request->filename;
+            
+            $chunkIndex = 0;
+            $totalChunks = 5;
+            $filename = "demo";
             $chunkTempFolder = 'public/tempChunks';
             $chunk->storeAs($chunkTempFolder, $filename . '-' . $chunkIndex);
             // Check if all chunks are received and assembled
