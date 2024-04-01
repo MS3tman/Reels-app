@@ -123,9 +123,9 @@ class VideoController extends Controller
 
         // Save the assembled video file with the unique filename
         $videoTempFolder = 'public/tempVideos';
-        $assembledVideoPath = storage_path("app/{$videoTempFolder}/{$uniqueFilename}");
+        $assembledVideoPath = storage_path("app/{$videoTempFolder}/{$uniqueFilename}.mp4");
         file_put_contents($assembledVideoPath, $assembledVideo);
-        return $videoTempFolder . '/' . $uniqueFilename;
+        return $assembledVideoPath;
     }
 
 
