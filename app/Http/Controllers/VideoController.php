@@ -14,56 +14,37 @@ use Illuminate\Support\Str;
 class VideoController extends Controller
 {
 
-    // public function uploadChunks(Request $request){
-    //     $validator = Validator::make($request->all(), [
-    //         'filename'=>'required',
-    //         'total_chunks'=>'required',
-    //         'chunk'=>'required',
-    //         'chunk_index'=>'required',
-    //         // 'Advertisement_id'=>'required'
-    //     ]);
-    //     if($validator->fails()){
-    //         return response()->json(['errors'=>$validator->errors()]);
-    //     }
+    public function uploadChunks(Request $request){
+        $validator = Validator::make($request->all(), [
+            'filename'=>'required',
+            //'total_chunks'=>'required',
+            'video'=>'required|file|mimetypes:video/*',
+            //'chunk_index'=>'required',
+            // 'Advertisement_id'=>'required'
+        ]);
+        if($validator->fails()){
+            return response()->json(['errors'=>$validator->errors()]);
+        }
 
-    //     $chunk = $request->file('chunk');
-    //     $chunkIndex = $request->input('chunk_index');
-    //     $totalChunks = $request->input('total_chunks');
-    //     $filename = $request->input('filename');
+        $video = $request->file('video');
+        //$chunkIndex = $request->input('chunk_index');
+        //$totalChunks = $request->input('total_chunks');
+        $filename = $request->input('filename');
 
-    //     // Define the temporary folder
-    //     $chunkTempFolder = storage_path('app/public/tempChunks');
-    //     // Create the temporary folder if it doesn't exist
-    //     if (!file_exists($chunkTempFolder)) {
-    //         mkdir($chunkTempFolder, 0777, true);
-    //     }
-    //     // Store the chunk data in a temporary file
-    //     $chunkFileName = $filename . '-' . $chunkIndex . '.chunk'; // Example filename
-    //     file_put_contents($chunkTempFolder . '/' . $chunkFileName, base64_decode($chunk)); // Assuming the chunk data is base64-encoded
-    //     if (file_exists($chunkTempFolder . '/' . $chunkFileName)) {
-    //         // Check if all chunks are received and assembled
-    //         if ($chunkIndex === $totalChunks - 1) {
-    //             // Assemble the video file from chunks
-    //             $videoPath = $this->assembleVideo($filename, $chunkTempFolder, $totalChunks);
-    //             // Clean up the temporary folder
-    //             $this->cleanUpTemporaryFolder($chunkTempFolder);
-    //             ///////// here we will call on the method for change video format to HLS format & user Id ///////////////
-    //             // $HlsData is a array have to variable 1.hlsFormatDirectory 2.manifestFileName to store it in database with specific user Id.
-    //             // $HlsData = (new HLSService())->hlsFormat($videoPath);
-    //             // $newVideo = new Video();
-    //             // $newVideo->hls_format_path = $HlsData['hlsFormatDirectory'];
-    //             // $newVideo->manifest_file_name = $HlsData['manifestFileName'];
-    //             // $newVideo->owner_id = $request->Advertisement_id;
-    //             // $newVideo->save();
-    //             return response()->json(['message' => 'Video uploaded successfully!']);
-    //         }
-    //         // Return success for current chunk, client sends the next chunk
-    //         return response()->json(['message' => 'Chunk uploaded successfully']);
-    //     } else {
-    //         // Handle missing chunk or error
-    //         return response()->json(['error' => 'Missing video chunk'], 400);
-    //     }
-    // }
+        // Define the temporary folder
+        $chunkTempFolder = storage_path('app/public/tempChunks');
+        if (!file_exists($chunkTempFolder)) {
+            mkdir($chunkTempFolder, 0777, true);
+        }
+        // Create the temporary folder if it doesn't exist
+        if ($request->hasFile('video')) {
+            $chunkTempFolder = 'public/tempChunks';
+            $video->storeAs($chunkTempFolder, $filename);
+            return response()->json(['messsage'=>'video upload successfully'], 200);
+        }
+        return response()->json(['errors'=>'video miss uploaded'], 403);
+        
+    }
 
 
     // public function uploadChunks(Request $request){
@@ -108,47 +89,47 @@ class VideoController extends Controller
     //     }
     // }
 
-    public function uploadChunks(Request $request){
-        $validator = Validator::make($request->all(), [
-            'filename'=>'required',
-            'total_chunks'=>'required',
-            'chunk'=>'required',
-            'chunk_index'=>'required',
-            // 'Advertisement_id'=>'required'
-        ]);
-        if($validator->fails()){
-            return response()->json(['errors'=>$validator->errors()]);
-        }
-        $chunk = $request->input('chunk');
-        $chunkIndex = $request->input('chunk_index');
-        $totalChunks = $request->input('total_chunks');
-        $filename = $request->input('filename');
-        // Define the temporary folder
-        $chunkTempFolder = storage_path('app/public/tempChunks');
-        if ($chunk) {
-            // Create the temporary folder if it doesn't exist
-            if (!file_exists($chunkTempFolder)) {
-                mkdir($chunkTempFolder, 0777, true);
-            }
-            // Store the chunk data in a temporary file
-            $chunkFileName = $filename . '-' . $chunkIndex . '.chunk'; // Example filename
-            file_put_contents($chunkTempFolder . '/' . $chunkFileName, base64_decode($chunk)); // Assuming the chunk data is base64-encoded
+    // public function uploadChunks(Request $request){
+    //     $validator = Validator::make($request->all(), [
+    //         'filename'=>'required',
+    //         'total_chunks'=>'required',
+    //         'chunk'=>'required',
+    //         'chunk_index'=>'required',
+    //         // 'Advertisement_id'=>'required'
+    //     ]);
+    //     if($validator->fails()){
+    //         return response()->json(['errors'=>$validator->errors()]);
+    //     }
+    //     $chunk = $request->input('chunk');
+    //     $chunkIndex = $request->input('chunk_index');
+    //     $totalChunks = $request->input('total_chunks');
+    //     $filename = $request->input('filename');
+    //     // Define the temporary folder
+    //     $chunkTempFolder = storage_path('app/public/tempChunks');
+    //     if ($chunk) {
+    //         // Create the temporary folder if it doesn't exist
+    //         if (!file_exists($chunkTempFolder)) {
+    //             mkdir($chunkTempFolder, 0777, true);
+    //         }
+    //         // Store the chunk data in a temporary file
+    //         $chunkFileName = $filename . '-' . $chunkIndex . '.chunk'; // Example filename
+    //         file_put_contents($chunkTempFolder . '/' . $chunkFileName, base64_decode($chunk)); // Assuming the chunk data is base64-encoded
 
-            // Check if all chunks are received and assembled
-            if ($chunkIndex === $totalChunks - 1) {
-                // Assemble the video file from chunks
-                $videoPath = $this->assembleVideo($filename, $chunkTempFolder, $totalChunks);
-                // Clean up the temporary folder
-                $this->cleanUpTemporaryFolder($chunkTempFolder);
-                return response()->json(['message' => 'Video uploaded successfully!']);
-            }
-            // Return success for current chunk, client sends the next chunk
-            return response()->json(['message' => 'Chunk uploaded successfully']);
-        } else {
-            // Handle missing chunk or error
-            return response()->json(['error' => 'Missing video chunk'], 400);
-        }
-    }
+    //         // Check if all chunks are received and assembled
+    //         if ($chunkIndex === $totalChunks - 1) {
+    //             // Assemble the video file from chunks
+    //             $videoPath = $this->assembleVideo($filename, $chunkTempFolder, $totalChunks);
+    //             // Clean up the temporary folder
+    //             $this->cleanUpTemporaryFolder($chunkTempFolder);
+    //             return response()->json(['message' => 'Video uploaded successfully!']);
+    //         }
+    //         // Return success for current chunk, client sends the next chunk
+    //         return response()->json(['message' => 'Chunk uploaded successfully']);
+    //     } else {
+    //         // Handle missing chunk or error
+    //         return response()->json(['error' => 'Missing video chunk'], 400);
+    //     }
+    // }
 
 
     public function assembleVideo(string $filename, string $chunkTempFolder, int $totalChunks){
