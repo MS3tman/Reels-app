@@ -83,7 +83,7 @@ class VideoController extends Controller
             //$totalChunks = $request->input('total_chunks');
             //$filename = $request->input('filename');
 
-            $chunkIndex = 0;
+            $chunkIndex = 4;
             $totalChunks = 5;
             $filename = 'demo';
 
