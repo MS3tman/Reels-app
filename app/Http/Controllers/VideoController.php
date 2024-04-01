@@ -70,14 +70,14 @@ class VideoController extends Controller
         $validator = Validator::make($request->all(), [
            // 'filename'=>'required',
            // 'total_chunks'=>'required',
-            'chunk'=>'required|file',
+            'chunk'=>'required',
            // 'chunk_index'=>'required',
             // 'Advertisement_id'=>'required'
         ]);
         if($validator->fails()){
             return response()->json(['errors'=>$validator->errors()]);
         }
-        if ($request->chunk) {
+        if ($request->hasFile('chunk')) {
             //$chunk = $request->file('chunk');
             // $chunkIndex = $request->input('chunk_index');
             // $totalChunks = $request->input('total_chunks');
