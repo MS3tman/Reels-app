@@ -65,33 +65,6 @@ class UploadController extends Controller
     }
 
 
-    public function assembleVideo($ownerId, $chunkTempFolder, int $totalChunks){
-        // Logic to concatenate all chunks in the temporary folder
-        // into a single file named $filename in the desired location
-        $assembledVideo = '';
-        for ($i = 0; $i < $totalChunks; $i++) {
-            $chunkPath = storage_path("app/{$chunkTempFolder}/{$ownerId}-{$i}");
-            $assembledVideo .= file_get_contents($chunkPath);
-        }
-         // Get the current timestamp
-        $timestamp = now();
-        // Format the timestamp as desired, for example: 'Ymd_His'
-        $formattedTimestamp = $timestamp->format('Y-m-d_H:i:s');
-        $uniqueFilename = $formattedTimestamp . '(' . $ownerId . ')';
-        //Save the assembled video file with the unique filename
-        $videoTempFolder = 'app/public/videoChunks/';
-            if (!file_exists($videoTempFolder)) {
-                mkdir($videoTempFolder, 0777, true); // Third parameter creates parent directories if they don't exist
-            }
-        $assembledVideoPath = 'app/public/videoChunks/' . $uniqueFilename . '.mp4';
-        file_put_contents($assembledVideoPath, $assembledVideo);
-        $data = ['assembledVideoPath'=>$assembledVideoPath, 'ownerId'=>$ownerId];
-        return $data;
-    }
-
-
-   
-
     // public function assembleVideo($ownerId, $chunkTempFolder, int $totalChunks){
     //     // Logic to concatenate all chunks in the temporary folder
     //     // into a single file named $filename in the desired location
@@ -100,19 +73,56 @@ class UploadController extends Controller
     //         $chunkPath = storage_path("app/{$chunkTempFolder}/{$ownerId}-{$i}");
     //         $assembledVideo .= file_get_contents($chunkPath);
     //     }
+    //      // Get the current timestamp
     //     $timestamp = now();
+    //     // Format the timestamp as desired, for example: 'Ymd_His'
     //     $formattedTimestamp = $timestamp->format('Y-m-d_H:i:s');
     //     $uniqueFilename = $formattedTimestamp . '(' . $ownerId . ')';
-    //     $videoTempFolder = 'public/tempVideo';
-    //     if (!Storage::exists($videoTempFolder)) {
-    //         Storage::makeDirectory($videoTempFolder);
-    //     }
-    //     $assembledVideoPath = storage_path("app/public/videoChunks/{$uniqueFilename}.mp4");
+    //     //Save the assembled video file with the unique filename
+    //     $videoTempFolder = 'app/public/videoChunks';
+    //         if (!file_exists($videoTempFolder)) {
+    //             mkdir($videoTempFolder, 0777, true); // Third parameter creates parent directories if they don't exist
+    //         }
+    //     $assembledVideoPath = storage_path("{$videoTempFolder}/{$uniqueFilename}.mp4");
     //     file_put_contents($assembledVideoPath, $assembledVideo);
-    //     $data = ['assembledVideoPath' => $assembledVideoPath, 'ownerId' => $ownerId];
+    //     $data = ['assembledVideoPath'=>$assembledVideoPath, 'ownerId'=>$ownerId];
     //     return $data;
     // }
 
+    public function assembleVideo($ownerId, $chunkTempFolder, int $totalChunks){
+        // Logic to concatenate all chunks in the temporary folder
+        // into a single file named $filename in the desired location
+        $assembledVideo = '';
+        for ($i = 0; $i < $totalChunks; $i++) {
+            $chunkPath = storage_path("app/{$chunkTempFolder}/{$ownerId}-{$i}");
+            $assembledVideo .= file_get_contents($chunkPath);
+        }
+    
+        // Get the current timestamp
+        $timestamp = now();
+        // Format the timestamp as desired, for example: 'Ymd_His'
+        $formattedTimestamp = $timestamp->format('Y-m-d_H:i:s');
+        $uniqueFilename = $formattedTimestamp . '(' . $ownerId . ')';
+        
+        // Define the directory where the assembled video will be saved
+        $videoTempFolder = 'public/videoChunks';
+        
+        // Create the directory if it doesn't exist
+        if (!Storage::exists($videoTempFolder)) {
+            Storage::makeDirectory($videoTempFolder);
+        }
+        
+        // Define the path for the assembled video file
+        $assembledVideoPath = "{$videoTempFolder}/{$uniqueFilename}.mp4";
+    
+        // Save the assembled video file using Storage
+        Storage::put($assembledVideoPath, $assembledVideo);
+    
+        // Prepare and return the data
+        $data = ['assembledVideoPath' => $assembledVideoPath, 'ownerId' => $ownerId];
+        return $data;
+    }
+    
 
 
     public function cleanUpTemporaryFolder(string $tempFolder){
