@@ -40,10 +40,10 @@ class UploadController extends Controller
             // Check if all chunks are received and assembled
             if ($chunkIndex == $totalChunks - 1) {
                 // Assemble the video file from chunks
-                $videoPath = $this->assembleVideo($ownerId, $chunkTempFolder, $totalChunks);
+                //$videoPath = $this->assembleVideo($ownerId, $chunkTempFolder, $totalChunks);
 
                 // Clean up the temporary folder
-                $this->cleanUpTemporaryFolder($chunkTempFolder . '/' . $videoPath['ownerId']);
+                //$this->cleanUpTemporaryFolder($chunkTempFolder . '/' . $videoPath['ownerId']);
 
                 ///////// here we will call on the method for change video format to HLS format & user Id ///////////////
                 // $HlsData is a array have to variable 1.hlsFormatDirectory 2.manifestFileName to store it in database with specific user Id.
