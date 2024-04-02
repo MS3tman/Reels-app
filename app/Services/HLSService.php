@@ -23,6 +23,15 @@ class HLSService
     public function hlsFormat($videoPath){
         // Extract the filename without the extension
         $fileName = pathinfo($videoPath, PATHINFO_FILENAME);
+
+        $ownerId = null;
+        // Use regular expression to extract the number inside parentheses
+        if (preg_match('/\((\d+)\)/', $fileName, $matches)) {
+            // $matches[0] will contain the entire matched string, including parentheses
+            // $matches[1] will contain the number inside parentheses
+            $ownerId = $matches[1];
+        }
+
         // Define output directory for segments
         $hlsFormatDirectory = 'public/hls/' . $fileName;
         // Ensure the segments directory exists
@@ -45,7 +54,7 @@ class HLSService
         }
         // Store the manifest filename in the database
         $manifestFileName = $fileName . '_playlist.m3u8';
-        $HlsData = ['hlsFormatDirectory'=>$hlsFormatDirectory, 'manifestFileName'=>$manifestFileName];
+        $HlsData = ['hlsFormatDirectory'=>$hlsFormatDirectory, 'manifestFileName'=>$manifestFileName, 'ownerId'=>$ownerId];
         return $HlsData;
     }
 

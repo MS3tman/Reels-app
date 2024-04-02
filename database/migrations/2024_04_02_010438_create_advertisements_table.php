@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('videos', function (Blueprint $table) {
+        Schema::create('advertisements', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('owner_id')->unsigned()->nullable(false);
-            $table->string('hls_format_path')->nullable(false);
-            $table->string('manifest_file_name')->nullable(false);
             $table->timestamps();
-            $table->foreign('owner_id')->references('id')->on('users');
         });
     }
 
@@ -26,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('videos');
+        Schema::dropIfExists('advertisements');
     }
 };
