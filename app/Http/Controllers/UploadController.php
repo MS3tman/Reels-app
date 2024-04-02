@@ -27,8 +27,8 @@ class UploadController extends Controller
         }
         if ($request->hasFile('chunk')) {
             $chunk = $request->file('chunk');
-            $chunkIndex = $request->input('chunk_index');
-            $totalChunks = $request->input('total_chunks');
+            $chunkIndex = (int)$request->input('chunk_index');
+            $totalChunks = (int)$request->input('total_chunks');
             $ownerId = $request->input('owner_id');
 
             $chunkTempFolder = 'public/tempChunks/'. $ownerId;
