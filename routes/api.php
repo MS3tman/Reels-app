@@ -1,10 +1,13 @@
 <?php
 
-use App\Http\Controllers\DownloadController;
-use App\Http\Controllers\SplitVideoController;
-use App\Http\Controllers\UploadController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\UsersController;
+use App\Http\Controllers\UploadController;
+use App\Http\Controllers\DownloadController;
+use App\Http\Controllers\CountriesController;
+use App\Http\Controllers\SplitVideoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,12 +20,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('guest:sanctum')->group(function(){
+    Route::post('login', [LoginController::class, 'login']);
+    Route::post('register', [LoginController::class, 'register']);
+
 });
 
-Route::post('upload-video', [UploadController::class, 'uploadChunks']);
+Route::middleware('auth:sanctum')->group(function(){
+    Route::post('logout', [LoginController::class, 'logout']);
 
-Route::get('download-video', [DownloadController::class, 'allVideo']);
+    Route::get('profile', [UsersController::class, 'profile']);
+    Route::post('profile', [UsersController::class, 'profilePost']);
+    
+    Route::get('categories', [CategoriesController::class, 'listCategories']);
+    Route::get('countries', [CountriesController::class, 'listCategories']);
 
-Route::get('video', [SplitVideoController::class, 'start']);
+    Route::post('upload-video', [UploadController::class, 'uploadChunks']);
+    Route::get('download-video', [DownloadController::class, 'allVideo']);
+    Route::get('video', [SplitVideoController::class, 'start']);
+});
