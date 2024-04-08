@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\API\V1\Auth\AuthController as AuthAuthController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\CategoriesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\UploadController;
 use App\Http\Controllers\DownloadController;
@@ -20,14 +22,25 @@ use App\Http\Controllers\SplitVideoController;
 |
 */
 
-Route::middleware('guest:sanctum')->group(function(){
-    Route::post('login', [LoginController::class, 'login']);
-    Route::post('register', [LoginController::class, 'register']);
+Route::middleware('guest:sanctum')->group( function(){
+    Route::group(['prefix'=>'auth'], function(){
+        Route::post('verify-phone-register', [AuthController::class, 'verifyPhoneNumber']);
+        Route::post('verify-otp-register', [AuthController::class, 'verifyOtpWithoutToken']);
+        Route::post('register', [AuthController::class, 'register']);
 
+        Route::post('login-phone', [AuthController::class, 'loginByPhone']);
+        Route::post('verify-phone-login', [AuthController::class, 'verifyPhoneNumber']);
+        Route::post('verify-otp-login', [AuthController::class, 'verifyOtpWithToken']);
+        
+        Route::post('verify-phone-password', [AuthController::class, 'verifyPhoneNumber']);
+        Route::post('verify-otp-password', [AuthController::class, 'verifyOtpWithoutToken']);
+        Route::post('reset-password', [AuthController::class, 'resetPassword']);
+    });
 });
 
+
 Route::middleware('auth:sanctum')->group(function(){
-    Route::post('logout', [LoginController::class, 'logout']);
+    Route::post('logout', [AuthController::class, 'logout']);
 
     Route::get('profile', [UsersController::class, 'profile']);
     Route::post('profile', [UsersController::class, 'profilePost']);
@@ -39,3 +52,5 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('download-video', [DownloadController::class, 'allVideo']);
     Route::get('video', [SplitVideoController::class, 'start']);
 });
+
+
