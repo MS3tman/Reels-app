@@ -24,7 +24,7 @@ use App\Http\Controllers\SplitVideoController;
 
 Route::middleware('guest:sanctum')->group( function(){
     Route::group(['prefix'=>'auth'], function(){
-        Route::post('verify-phone-register', [AuthController::class, 'verifyPhoneNumber']);
+        Route::post('verify-phone-register', [AuthController::class, 'verifyPhoneNumberForRegister']);
         Route::post('verify-otp-register', [AuthController::class, 'verifyOtpWithoutToken']);
         Route::post('register', [AuthController::class, 'register']);
 

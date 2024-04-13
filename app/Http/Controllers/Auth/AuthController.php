@@ -28,13 +28,12 @@ class AuthController extends Controller
         ];
         return $finalUserData;
     }
-    
 
 
-    public function verifyPhoneNumber(Request $request){
+    public function verifyPhoneNumberForRegister(Request $request){
         $validator = Validator::make($request->all(), [
             'country_code' => 'required',
-            'phone_number' => 'required'
+            'phone_number' => 'required|unique:users'
         ]);
         if($validator->fails()){
             return response()->json(['errors'=>$validator->errors()], 403);
@@ -48,6 +47,29 @@ class AuthController extends Controller
         }
     }
 
+
+    public function verifyPhoneNumber(Request $request){
+        $validator = Validator::make($request->all(), [
+            'country_code' => 'required',
+            'phone_number' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return response()->json(['errors'=>$validator->errors()], 403);
+        }
+
+        $checkPhone = User::where('phone_number', $request->phone_number)->where('active', true)->first();
+        if(!$checkPhone){
+            return response()->json(['errors'=>'Phone Number is Not Found, Please make sure you have entered the correct phone number'], 404);
+        }
+
+        $verify = (new TwilioService())->sendMessage($request->country_code.$request->phone_number);
+        if($verify['status'] == 'pending'){
+            return response()->json(['status'=>'awaiting verify']);
+        }else{
+            return response()->json(['verify'=>$verify],$verify['status']);
+        }
+    }
 
     // for verify OTP code with return token and user data.
     public function verifyOtpWithToken(Request $request){
@@ -155,7 +177,6 @@ class AuthController extends Controller
             return response()->json(['errors'=>$validator->errors()], 400);
         }
 
-        
         $user = User::where('phone_number', $request->phone_number)->where('active', true)->first();
         if($user){
             $user->password = bcrypt($request->password);
