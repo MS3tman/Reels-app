@@ -10,7 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-
+use FFMpeg\FFMpeg;
+use FFMpeg\Format\Video\X264;
 
 class UploadController extends Controller
 {
@@ -19,114 +20,94 @@ class UploadController extends Controller
     }
 
 
-    // public function uploadChunks(Request $request){
-    //     $validator = Validator::make($request->all(), [
-    //         'owner_id'=>'required',
-    //         'total_chunks'=>'required',
-    //         'chunk'=>'required',
-    //         'chunk_index'=>'required',
-    //         //'Advertisement_id'=>'required'
-    //     ]);
-    //     if($validator->fails()){
-    //         return response()->json(['errors'=>$validator->errors()]);
-    //     }
-    //     if ($request->hasFile('chunk')) {
-    //         $chunk = $request->file('chunk');
-    //         $chunkIndex = (int)$request->input('chunk_index');
-    //         $totalChunks = (int)$request->input('total_chunks');
-    //         $ownerId = $request->input('owner_id');
+    public function uploadChunks(Request $request){
+        $validator = Validator::make($request->all(), [
+            'owner_id'=>'required',
+            'total_chunks'=>'required',
+            'chunk'=>'required',
+            'chunk_index'=>'required',
+            //'Advertisement_id'=>'required'
+        ]);
+        if($validator->fails()){
+            return response()->json(['errors'=>$validator->errors()]);
+        }
+        if ($request->hasFile('chunk')) {
+            $chunk = $request->file('chunk');
+            $chunkIndex = (int)$request->input('chunk_index');
+            $totalChunks = (int)$request->input('total_chunks');
+            $ownerId = $request->input('owner_id');
 
-    //         $chunkTempFolder = 'public/tempChunks/'. $ownerId;
-    //         if (!file_exists($chunkTempFolder)) {
-    //             mkdir($chunkTempFolder, 0777, true); // Third parameter creates parent directories if they don't exist
-    //         }
+            $chunkTempFolder = 'public/tempChunks/'. $ownerId;
+            if (!file_exists($chunkTempFolder)) {
+                mkdir($chunkTempFolder, 0777, true); // Third parameter creates parent directories if they don't exist
+            }
 
-            // $chunk->storeAs($chunkTempFolder, $ownerId . '-' . $chunkIndex);
-            // // Check if all chunks are received and assembled
-            // if ($chunkIndex == $totalChunks - 1) {
-            //     // Assemble the video file from chunks
-            //     $videoPath = $this->assembleVideo($ownerId, $chunkTempFolder, $totalChunks);
+            $chunk->storeAs($chunkTempFolder, $ownerId . '-' . $chunkIndex);
+            // Check if all chunks are received and assembled
+            if ($chunkIndex == $totalChunks - 1) {
+                // Assemble the video file from chunks
+                $videoPath = $this->assembleVideo($ownerId, $chunkTempFolder, $totalChunks);
 
-            //     // Clean up the temporary folder
-            //     $this->cleanUpTemporaryFolder($chunkTempFolder);
+                // Clean up the temporary folder
+                $this->cleanUpTemporaryFolder($chunkTempFolder);
 
-            //     ///////// here we will call on the method for change video format to HLS format & user Id ///////////////
-            //     // $HlsData is a array have to variable 1.hlsFormatDirectory 2.manifestFileName to store it in database with specific user Id.
-            //     // $HlsData = (new HLSService())->hlsFormat($videoPath['assembledVideoPath']);
-            //     // $advertisement = Advertisement::where('owner_id', $HlsData['ownerId'])->latest()->first(); // to retrieve last advertisement for this owner 
-            //     // $newVideo = new Video();
-            //     // $newVideo->hls_format_path = $HlsData['hlsFormatDirectory'];
-            //     // $newVideo->manifest_file_name = $HlsData['manifestFileName'];
-            //     // $newVideo->owner_id = $advertisement->id;
-            //     // $newVideo->save();
-            //     return response()->json(['message' => 'Video uploaded successfully!']);
-            // }
-            // Return success for current chunk, client sends the next chunk
-    //         return response()->json(['message' => 'Chunk uploaded successfully']);
-    //     } else {
-    //         // Handle missing chunk or error
-    //         return response()->json(['error' => 'Missing video chunk'], 400);
-    //     }
-    // }
+                ///////// here we will call on the method for change video format to HLS format & user Id ///////////////
+                // $HlsData is a array have to variable 1.hlsFormatDirectory 2.manifestFileName to store it in database with specific user Id.
+                // $HlsData = (new HLSService())->hlsFormat($videoPath['assembledVideoPath']);
+                // $advertisement = Advertisement::where('owner_id', $HlsData['ownerId'])->latest()->first(); // to retrieve last advertisement for this owner 
+                // $newVideo = new Video();
+                // $newVideo->hls_format_path = $HlsData['hlsFormatDirectory'];
+                // $newVideo->manifest_file_name = $HlsData['manifestFileName'];
+                // $newVideo->owner_id = $advertisement->id;
+                // $newVideo->save();
+                return response()->json(['message' => 'Video uploaded successfully!']);
+            }
+            //Return success for current chunk, client sends the next chunk
+            return response()->json(['message' => 'Chunk uploaded successfully']);
+        } else {
+            // Handle missing chunk or error
+            return response()->json(['error' => 'Missing video chunk'], 400);
+        }
+    }
 
 
-    public function assembleVideo($ownerId, $chunkTempFolder, int $totalChunks){
+    public function assembleVideo($ownerId, $chunkTempFolder, $totalChunks){
+        // Validate the request if necessary
+
+        // Get the owner ID and chunk temporary folder from the request
+        $ownerId = $ownerId;
+        $chunkTempFolder = $chunkTempFolder;
+
         // Define the directory where the assembled video will be saved
         $videoTempFolder = 'public/tempVideo';
+
         // Create the directory if it doesn't exist
         if (!Storage::exists($videoTempFolder)) {
             Storage::makeDirectory($videoTempFolder);
         }
-        // Get the current timestamp
-        $timestamp = now();
-        // Format the timestamp as desired, for example: 'Ymd_His'
-        $formattedTimestamp = $timestamp->format('Y-m-d_His');
-        $uniqueFilename = $formattedTimestamp . '(' . $ownerId . ')';
-        $assembledVideoPath = "{$videoTempFolder}/{$uniqueFilename}.mp4";
+
+        // Generate a unique filename for the assembled video
+        $timestamp = now()->format('Y-m-d_His');
+        $uniqueFilename = "{$timestamp}_{$ownerId}.mp4";
+        $assembledVideoPath = "{$videoTempFolder}/{$uniqueFilename}";
+
         // Open the assembled video file for writing
-        $assembledVideoFile = Storage::disk('local')->put($assembledVideoPath, '');
+        $assembledVideoFile = fopen(storage_path("app/{$assembledVideoPath}"), 'wb');
+
         // Iterate through each chunk and append it to the assembled video file
         for ($i = 0; $i < $totalChunks; $i++) {
             $chunkPath = storage_path("app/{$chunkTempFolder}/{$ownerId}-{$i}");
             $chunkContents = file_get_contents($chunkPath);
-            Storage::disk('local')->append($assembledVideoPath, $chunkContents);
+            fwrite($assembledVideoFile, $chunkContents);
         }
-        // Prepare and return the data
+
+        // Close the assembled video file
+        fclose($assembledVideoFile);
+
+        // Prepare and return the response
         $data = ['assembledVideoPath' => $assembledVideoPath, 'ownerId' => $ownerId];
         return $data;
     }
-
-
-    // public function assembleVideo1($ownerId, $chunkTempFolder, int $totalChunks){
-    //     // Define the path to store the assembled video
-    //     //$assembledVideoPath = 'public/tempVideos/video.mp4';
-    //     $videoTempFolder = 'public/tempVideo';
-    //     $timestamp = now();
-    //     $formattedTimestamp = $timestamp->format('Y-m-d_His');
-    //     $uniqueFilename = $formattedTimestamp . '(' . $ownerId . ')';
-    //     $assembledVideoPath = "{$videoTempFolder}/{$uniqueFilename}.mp4";
-    //     $assembledVideoFullPath = storage_path('app/' . $assembledVideoPath);
-
-    //     // Initialize an empty string to hold the assembled video data
-    //     $assembledVideoData = '';
-
-    //     // Loop through all uploaded chunks and append their contents to the assembled video data
-    //     for ($i = 0; $i < $totalChunks; $i++) {
-    //         $chunkPath = storage_path('app/' . $request->file('chunks')[$i]->store('chunks'));
-    //         $chunkData = file_get_contents($chunkPath);
-    //         $assembledVideoData .= $chunkData;
-    //     }
-
-    //     // Save the assembled video data to the designated path
-    //     file_put_contents($assembledVideoFullPath, $assembledVideoData);
-
-    //     // Optionally, you can delete the individual chunks after assembly
-    //     // Storage::deleteDirectory('chunks');
-
-    //     // Prepare and return the data
-    //     $data = ['assembledVideoPath' => $assembledVideoPath, 'ownerId' => $ownerId];
-    //     return $data;
-    // }
 
 
     public function cleanUpTemporaryFolder(string $tempFolder){

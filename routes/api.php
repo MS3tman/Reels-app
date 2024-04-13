@@ -9,6 +9,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\Reel\UploadController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\CountriesController;
+use App\Http\Controllers\Reel\UploderController;
 use App\Http\Controllers\SplitVideoController;
 
 /*

@@ -3,52 +3,64 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use ProtoneMedia\LaravelFFMpeg\Support\FFMpeg;
+//use FFMpeg;
+use FFMpeg\FFMpeg;
+use FFMpeg\FFMpeg as FFMpegLib;
+use FFMpeg\Coordinate\TimeCode;
+
 
 class SplitVideoController extends Controller
 {
+    // protected $ffmpeg;
 
-    // public function start(){
-    //     $videoPath = 'app/public/video';
-    //     $outputDirectory = 'app/public/store';
-    //     $chunkDuration = 5;
-    //     $this->splitVideoIntoChunks($videoPath, $outputDirectory, $chunkDuration);
-    //     return response()->json(['message'=>'good'], 200);
+    // public function __construct()
+    // {
+    //     $this->ffmpeg = FFMpeg::create();
     // }
 
-
-    // public function splitVideoIntoChunks($videoPath, $outputDirectory, $chunkDuration)
+    
+    // public function splitVideoIntoChunks($videoPath, $chunkSizeInSeconds)
     // {
-    //     // Create an instance of FFMpeg
-    //     $ffmpeg = FFMpeg::create();
+    //     $ffmpeg = $this->ffmpeg;
 
     //     // Open the video file
     //     $video = $ffmpeg->open($videoPath);
 
-    //     // Get the duration of the original video
-    //     $duration = $video->getDurationInSeconds();
+    //     // Get the duration of the video in seconds
+    //     $duration = $video->getDuration();
 
-    //     // Calculate the number of chunks based on the chunk duration
-    //     $numChunks = ceil($duration / $chunkDuration);
+    //     // Calculate the total number of chunks based on the chunk size
+    //     $totalChunks = ceil($duration / $chunkSizeInSeconds);
 
-    //     // Split the video into chunks
-    //     for ($i = 0; $i < $numChunks; $i++) {
-    //         $startTime = $i * $chunkDuration;
-    //         $endTime = min(($i + 1) * $chunkDuration, $duration);
+    //     $chunks = [];
 
-    //         // Set the output file name for the chunk
-    //         $outputFileName = "chunk_$i.mp4";
-    //         $outputFilePath = "$outputDirectory/$outputFileName";
+        // // Split the video into chunks
+        // for ($i = 0; $i < $totalChunks; $i++) {
+        //     // Calculate start time for the current chunk
+        //     $startTime = $i * $chunkSizeInSeconds;
 
-    //         // Export the chunk
-    //         $video
-    //             ->clip(\FFMpeg\Coordinate\TimeCode::fromSeconds($startTime), \FFMpeg\Coordinate\TimeCode::fromSeconds($endTime))
-    //             ->export()
-    //             ->toDisk('local')
-    //             ->inFormat(new \FFMpeg\Format\Video\X264())
-    //             ->save($outputFilePath);
+        //     // Calculate end time for the current chunk
+        //     $endTime = min(($i + 1) * $chunkSizeInSeconds, $duration);
+        //     // Define the output path for the current chunk
+        //     $outputPath = storage_path('app/chunks/') . "chunk_$i.mp4";
+
+        //     // Extract the chunk from the video
+        //     $video->filters()
+        //         ->clip(TimeCode::fromSeconds($startTime), TimeCode::fromSeconds($endTime))
+        //         ->export()
+        //         ->toDisk('local')
+        //         ->inFormat(new \FFMpeg\Format\Video\X264)
+        //         ->save($outputPath);
+
+        //     // Add information about the chunk to the array
+        //     $chunks[] = [
+        //         'index' => $i,
+    //             'path' => $outputPath
+    //         ];
     //     }
-
-    //     return $numChunks;
+    //     return [
+    //         'totalChunks' => $totalChunks,
+    //         'chunks' => $chunks
+    //     ];
     // }
 }
