@@ -28,7 +28,7 @@ Route::middleware('guest:sanctum')->group( function(){
         Route::post('verify-otp-register', [AuthController::class, 'verifyOtpWithoutToken']);
         Route::post('register', [AuthController::class, 'register']);
 
-        Route::post('login-phone', [AuthController::class, 'loginByPhone']);
+        Route::post('login', [AuthController::class, 'login']);
         Route::post('verify-phone-login', [AuthController::class, 'verifyPhoneNumber']);
         Route::post('verify-otp-login', [AuthController::class, 'verifyOtpWithToken']);
         
