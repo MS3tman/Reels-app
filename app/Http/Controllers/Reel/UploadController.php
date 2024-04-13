@@ -26,7 +26,6 @@ class UploadController extends Controller
             'total_chunks'=>'required',
             'chunk'=>'required',
             'chunk_index'=>'required',
-            //'Advertisement_id'=>'required'
         ]);
         if($validator->fails()){
             return response()->json(['errors'=>$validator->errors()]);
@@ -53,7 +52,7 @@ class UploadController extends Controller
 
                 ///////// here we will call on the method for change video format to HLS format & user Id ///////////////
                 // $HlsData is a array have to variable 1.hlsFormatDirectory 2.manifestFileName to store it in database with specific user Id.
-                // $HlsData = (new HLSService())->hlsFormat($videoPath['assembledVideoPath']);
+                $HlsData = (new HLSService())->hlsFormat($videoPath['assembledVideoPath']);
                 // $advertisement = Advertisement::where('owner_id', $HlsData['ownerId'])->latest()->first(); // to retrieve last advertisement for this owner 
                 // $newVideo = new Video();
                 // $newVideo->hls_format_path = $HlsData['hlsFormatDirectory'];
@@ -72,8 +71,6 @@ class UploadController extends Controller
 
 
     public function assembleVideo($ownerId, $chunkTempFolder, $totalChunks){
-        // Validate the request if necessary
-
         // Get the owner ID and chunk temporary folder from the request
         $ownerId = $ownerId;
         $chunkTempFolder = $chunkTempFolder;
