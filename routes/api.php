@@ -6,7 +6,7 @@ use App\Http\Controllers\CategoriesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
-use App\Http\Controllers\UploadController;
+use App\Http\Controllers\Reel\UploadController;
 use App\Http\Controllers\DownloadController;
 use App\Http\Controllers\CountriesController;
 use App\Http\Controllers\SplitVideoController;
@@ -41,6 +41,17 @@ Route::middleware('guest:sanctum')->group( function(){
 
 Route::middleware('auth:sanctum')->group(function(){
     Route::post('logout', [AuthController::class, 'logout']);
+
+    Route::group(['prefix'=>'reel'], function(){
+        Route::group(['prefix'=>'create'], function(){
+            Route::post('data', [UploadController::class, 'uploadReel']);
+            Route::post('chunk', [UploadController::class, 'uploadChunks']);
+        });
+
+        
+
+    });
+
 
     Route::get('profile', [UsersController::class, 'profile']);
     Route::post('profile', [UsersController::class, 'profilePost']);

@@ -71,6 +71,7 @@ class AuthController extends Controller
         }
     }
 
+
     // for verify OTP code with return token and user data.
     public function verifyOtpWithToken(Request $request){
         $validator = Validator::make($request->all(), [
@@ -145,17 +146,17 @@ class AuthController extends Controller
     }
 
 
-    public function loginByPhone(Request $request){
+    public function login(Request $request){
         $validator = Validator::make($request->all(), [
-            'phone_number' => 'required',
+            'email' => 'required',
             'password' => 'required'
         ]);
         if($validator->fails()){
             return response()->json(['errors'=>$validator->errors()]);
         }
-        $user = User::where('phone_number', $request->phone_number)->where('active', true)->first();
+        $user = User::where('email', $request->email)->where('active', true)->first();
         if ($user) {
-            $credentials = $request->only('phone_number', 'password');
+            $credentials = $request->only('email', 'password');
             if (Auth::attempt($credentials)) {
                 $user = Auth::loginUsingId($user->id); 
                 $userData = $this->getUserData($user);
@@ -163,7 +164,7 @@ class AuthController extends Controller
             }
             return response()->json(['errors'=>'The password is incorrect, Login is faild'], 403);
         }
-        return response()->json(['errors'=>'Phone Number is Not Found!'], 404);
+        return response()->json(['errors'=>'Email is Not Found!'], 404);
         
     }
 
