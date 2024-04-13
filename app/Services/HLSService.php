@@ -18,10 +18,7 @@ class HLSService
         $pattern = '/(\d+)$/';
         if (preg_match($pattern, $fileName, $matches)) {
             $ownerId = $matches[1];
-            echo "Owner ID: " . $ownerId;
-        } else {
-            echo "Owner ID not found.";
-        }
+        } 
     
         // Define output directory for segments
         $hlsFormatDirectory = 'public/hls/' . $fileName;
