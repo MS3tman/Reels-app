@@ -45,7 +45,8 @@ class HLSService
 
             // Run FFMpeg to generate HLS segments for each quality variant
             $process = new Process([
-                env('FFMPEG_BINARIES'),
+                //env('FFMPEG_BINARIES'),
+                'ffmpeg',
                 '-i', storage_path('app/' . $videoPath),
                 '-preset', 'fast',
                 '-vf', 'scale=' . $variant['resolution'],
