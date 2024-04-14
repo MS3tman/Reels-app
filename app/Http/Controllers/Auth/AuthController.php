@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\FileHandle;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 use App\Services\TwilioService;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -129,9 +130,11 @@ class AuthController extends Controller
         $newUser = new User();
         $newUser->full_name = $request->full_name;
         $newUser->email = $request->email;
-        $newUser->password = bcrypt($request->password);
+        $newUser->password = Hash::make($request->password);
         $newUser->country_code = $request->country_code;
         $newUser->phone_number = $request->phone_number;
+        $newUser->active = false;
+        $newUser->vtoken = rand(10000, 99999);
         if($request->has('image')){
             $imagePath = (new FileHandle())->storeImage($request->image, 'user');
             $newUser->image_path = $imagePath;

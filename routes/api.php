@@ -1,16 +1,17 @@
 <?php
 
-use App\Http\Controllers\API\V1\Auth\AuthController as AuthAuthController;
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\CategoriesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
-use App\Http\Controllers\Reel\UploadController;
 use App\Http\Controllers\DownloadController;
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CountriesController;
-use App\Http\Controllers\Reel\UploderController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\SplitVideoController;
+use App\Http\Controllers\Reel\UploadController;
+use App\Http\Controllers\Reel\UploderController;
+use App\Http\Controllers\API\V1\Auth\AuthController as AuthAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,25 +24,19 @@ use App\Http\Controllers\SplitVideoController;
 |
 */
 
-Route::middleware('guest:sanctum')->group( function(){
-    Route::group(['prefix'=>'auth'], function(){
-        Route::post('verify-phone-register', [AuthController::class, 'verifyPhoneNumberForRegister']);
-        Route::post('verify-otp-register', [AuthController::class, 'verifyOtpWithoutToken']);
-        Route::post('register', [AuthController::class, 'register']);
+Route::pattern('token', '[a-zA-Z0-9]{60}');
 
-        Route::post('login', [AuthController::class, 'login']);
-        Route::post('verify-phone-login', [AuthController::class, 'verifyPhoneNumber']);
-        Route::post('verify-otp-login', [AuthController::class, 'verifyOtpWithToken']);
-        
-        Route::post('verify-phone-password', [AuthController::class, 'verifyPhoneNumber']);
-        Route::post('verify-otp-password', [AuthController::class, 'verifyOtpWithoutToken']);
-        Route::post('reset-password', [AuthController::class, 'resetPassword']);
-    });
+Route::prefix('auth')->middleware('guest:sanctum')->group( function(){
+    Route::post('login', [LoginController::class, 'login']);
+    Route::post('register', [LoginController::class, 'register']);
+    Route::get('register-verify/{token}', [LoginController::class, 'verifyRegister'])->name('verify_register');
+    Route::post('forget-password', [LoginController::class, 'forgetPassword']);
+    Route::post('reset-password/{token}', [LoginController::class, 'resetPassword']);
 });
 
 
 Route::middleware('auth:sanctum')->group(function(){
-    Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('logout', [LoginController::class, 'logout']);
 
     Route::group(['prefix'=>'reel'], function(){
         Route::group(['prefix'=>'create'], function(){
