@@ -15,14 +15,9 @@ use FFMpeg\Format\Video\X264;
 
 class UploadController extends Controller
 {
-    public function uploadReel(Request $request){
-
-    }
-
-
     public function uploadChunks(Request $request){
         $validator = Validator::make($request->all(), [
-            'owner_id'=>'required',
+            'reel_id'=>'required',
             'total_chunks'=>'required',
             'chunk'=>'required',
             'chunk_index'=>'required',
@@ -34,31 +29,35 @@ class UploadController extends Controller
             $chunk = $request->file('chunk');
             $chunkIndex = (int)$request->input('chunk_index');
             $totalChunks = (int)$request->input('total_chunks');
-            $ownerId = $request->input('owner_id');
+            $reelId = $request->input('reel_id');
 
-            $chunkTempFolder = 'public/tempChunks/'. $ownerId;
+            $chunkTempFolder = 'public/tempChunks/'. $reelId;
             if (!file_exists($chunkTempFolder)) {
                 mkdir($chunkTempFolder, 0777, true); // Third parameter creates parent directories if they don't exist
             }
 
-            $chunk->storeAs($chunkTempFolder, $ownerId . '-' . $chunkIndex);
+            $chunk->storeAs($chunkTempFolder, $reelId . '-' . $chunkIndex);
             // Check if all chunks are received and assembled
             if ($chunkIndex == $totalChunks - 1) {
                 // Assemble the video file from chunks
-                $videoPath = $this->assembleVideo($ownerId, $chunkTempFolder, $totalChunks);
+                $videoPath = $this->assembleVideo($reelId, $chunkTempFolder, $totalChunks);
 
                 // Clean up the temporary folder
                 $this->cleanUpTemporaryFolder($chunkTempFolder);
 
-                ///////// here we will call on the method for change video format to HLS format & user Id ///////////////
-                // $HlsData is a array have to variable 1.hlsFormatDirectory 2.manifestFileName to store it in database with specific user Id.
-                $HlsData = (new HLSService())->hlsFormat($videoPath['assembledVideoPath']);
-                // $advertisement = Advertisement::where('owner_id', $HlsData['ownerId'])->latest()->first(); // to retrieve last advertisement for this owner 
-                // $newVideo = new Video();
-                // $newVideo->hls_format_path = $HlsData['hlsFormatDirectory'];
-                // $newVideo->manifest_file_name = $HlsData['manifestFileName'];
-                // $newVideo->owner_id = $advertisement->id;
-                // $newVideo->save();
+                //store manifest file in database
+                $hlsData = (new HLSService())->hlsFormat($videoPath['assembledVideoPath']);
+                // $reel = Reel::find($hlsData['reelId']);
+                // $reel->url = $hlsData['masterPlaylistUrl'];
+                // $reel->save();
+
+                //remove video mp4
+                $videoWillRemove = 'public/tempVideo/' . $hlsData['fileName'] . '.mp4';
+                $videoPath = storage_path('app/' . $videoWillRemove);
+                if (file_exists($videoPath)) {
+                    unlink($videoPath);
+                }
+
                 return response()->json(['message' => 'Video uploaded successfully!']);
             }
             //Return success for current chunk, client sends the next chunk
@@ -70,11 +69,7 @@ class UploadController extends Controller
     }
 
 
-    public function assembleVideo($ownerId, $chunkTempFolder, $totalChunks){
-        // Get the owner ID and chunk temporary folder from the request
-        $ownerId = $ownerId;
-        $chunkTempFolder = $chunkTempFolder;
-
+    public function assembleVideo($reelId, $chunkTempFolder, $totalChunks){
         // Define the directory where the assembled video will be saved
         $videoTempFolder = 'public/tempVideo';
 
@@ -85,7 +80,7 @@ class UploadController extends Controller
 
         // Generate a unique filename for the assembled video
         $timestamp = now()->format('Y-m-d_His');
-        $uniqueFilename = "{$timestamp}_{$ownerId}.mp4";
+        $uniqueFilename = "{$timestamp}_{$reelId}.mp4";
         $assembledVideoPath = "{$videoTempFolder}/{$uniqueFilename}";
 
         // Open the assembled video file for writing
@@ -93,7 +88,7 @@ class UploadController extends Controller
 
         // Iterate through each chunk and append it to the assembled video file
         for ($i = 0; $i < $totalChunks; $i++) {
-            $chunkPath = storage_path("app/{$chunkTempFolder}/{$ownerId}-{$i}");
+            $chunkPath = storage_path("app/{$chunkTempFolder}/{$reelId}-{$i}");
             $chunkContents = file_get_contents($chunkPath);
             fwrite($assembledVideoFile, $chunkContents);
         }
@@ -102,7 +97,7 @@ class UploadController extends Controller
         fclose($assembledVideoFile);
 
         // Prepare and return the response
-        $data = ['assembledVideoPath' => $assembledVideoPath, 'ownerId' => $ownerId];
+        $data = ['assembledVideoPath' => $assembledVideoPath, 'reelId' => $reelId];
         return $data;
     }
 
@@ -133,8 +128,5 @@ class UploadController extends Controller
         }
         rmdir($directory);
     }
-
-
-
 
 }
