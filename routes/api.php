@@ -3,15 +3,16 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
-use App\Http\Controllers\DownloadController;
+use App\Http\Controllers\Reel\DownloadController;
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\CountriesController;
+use App\Http\Controllers\Admin\CountriesController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\CategoriesController;
-use App\Http\Controllers\SplitVideoController;
+use App\Http\Controllers\Admin\CategoriesController;
 use App\Http\Controllers\Reel\UploadController;
 use App\Http\Controllers\Reel\UploderController;
 use App\Http\Controllers\API\V1\Auth\AuthController as AuthAuthController;
+use App\Http\Controllers\Reel\CategoryController;
+use App\Http\Controllers\Reel\CountryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,15 +48,23 @@ Route::middleware('auth:sanctum')->group(function(){
     });
 
 
+    Route::group(['prefix'=>'country'], function(){
+        Route::get('all', [CountryController::class, 'all']);
+        Route::get('filter/{id}', [CountryController::class, 'filter']);
+    });
+
+    Route::group(['prefix'=>'category'], function(){
+        Route::get('all', [CategoryController::class, 'all']);
+        Route::get('filter/{id}', [CategoryController::class, 'filter']);
+    });
+
+
     Route::get('profile', [UsersController::class, 'profile']);
     Route::post('profile', [UsersController::class, 'profilePost']);
-    
-    Route::get('categories', [CategoriesController::class, 'listCategories']);
-    Route::get('countries', [CountriesController::class, 'listCategories']);
 
-    Route::post('upload-video', [UploadController::class, 'uploadChunks']);
     Route::get('download-video', [DownloadController::class, 'allVideo']);
-    Route::get('video', [SplitVideoController::class, 'start']);
+    
+
 });
 
 

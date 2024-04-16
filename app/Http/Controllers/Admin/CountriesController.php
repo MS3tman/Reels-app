@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\DefaultCollection;
+use App\Http\Resources\DefaultResource;
+use App\Models\Country;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
+class CountriesController extends Controller
+{
+    public function create(Request $request){
+        $validator = Validator::make($request->all(), [
+            'name_en'=>'required',
+            'dial_code'=>'required',
+            'phone_length'=>'required',
+            'iso_code'=>'required',
+        ]);
+        if($validator->fails()){
+            return DefaultResource::failure($validator->errors());
+        }
+        $newCountry = new Country();
+        $newCountry->name_en = $request->name_en;
+        $newCountry->dial_code = $request->dial_code;
+        $newCountry->phone_length = $request->phone_length;
+        $newCountry->iso_code = $request->iso_code;
+        $newCountry->save();
+        return DefaultResource::success('successfully, country is created');
+    }
+
+
+    public function read(){
+        $countries = Country::all();
+        if(!$countries){
+            return DefaultResource::failure('not found');
+        }
+        return DefaultCollection::success('Successfully, retrieved all countries', $countries);
+    }
+
+
+    public function delete($id){
+        $country = Country::find($id);
+        if($country){
+        $country->delete();
+        return DefaultResource::success('Successfully, country is deleted');
+        }
+        return DefaultResource::failure('country not found');
+    }
+
+}

@@ -10,7 +10,7 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
 
-    protected function success($message, $data = [], $status = 200)
+    protected function success($message='', $data = [], $status = 200)
     {
         return response([
             'success' => true,

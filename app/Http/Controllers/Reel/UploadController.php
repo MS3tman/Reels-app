@@ -30,34 +30,28 @@ class UploadController extends Controller
             $chunkIndex = (int)$request->input('chunk_index');
             $totalChunks = (int)$request->input('total_chunks');
             $reelId = $request->input('reel_id');
-
             $chunkTempFolder = 'public/tempChunks/'. $reelId;
             if (!file_exists($chunkTempFolder)) {
                 mkdir($chunkTempFolder, 0777, true); // Third parameter creates parent directories if they don't exist
             }
-
             $chunk->storeAs($chunkTempFolder, $reelId . '-' . $chunkIndex);
             // Check if all chunks are received and assembled
             if ($chunkIndex == $totalChunks - 1) {
                 // Assemble the video file from chunks
                 $videoPath = $this->assembleVideo($reelId, $chunkTempFolder, $totalChunks);
-
                 // Clean up the temporary folder
                 $this->cleanUpTemporaryFolder($chunkTempFolder);
-
                 //store manifest file in database
                 $hlsData = (new HLSService())->hlsFormat($videoPath['assembledVideoPath']);
                 // $reel = Reel::find($hlsData['reelId']);
                 // $reel->url = $hlsData['masterPlaylistUrl'];
                 // $reel->save();
-
                 //remove video mp4
                 $videoWillRemove = 'public/tempVideo/' . $hlsData['fileName'] . '.mp4';
                 $videoPath = storage_path('app/' . $videoWillRemove);
                 if (file_exists($videoPath)) {
                     unlink($videoPath);
                 }
-
                 return response()->json(['message' => 'Video uploaded successfully!']);
             }
             //Return success for current chunk, client sends the next chunk
@@ -72,30 +66,24 @@ class UploadController extends Controller
     public function assembleVideo($reelId, $chunkTempFolder, $totalChunks){
         // Define the directory where the assembled video will be saved
         $videoTempFolder = 'public/tempVideo';
-
         // Create the directory if it doesn't exist
         if (!Storage::exists($videoTempFolder)) {
             Storage::makeDirectory($videoTempFolder);
         }
-
         // Generate a unique filename for the assembled video
         $timestamp = now()->format('Y-m-d_His');
         $uniqueFilename = "{$timestamp}_{$reelId}.mp4";
         $assembledVideoPath = "{$videoTempFolder}/{$uniqueFilename}";
-
         // Open the assembled video file for writing
         $assembledVideoFile = fopen(storage_path("app/{$assembledVideoPath}"), 'wb');
-
         // Iterate through each chunk and append it to the assembled video file
         for ($i = 0; $i < $totalChunks; $i++) {
             $chunkPath = storage_path("app/{$chunkTempFolder}/{$reelId}-{$i}");
             $chunkContents = file_get_contents($chunkPath);
             fwrite($assembledVideoFile, $chunkContents);
         }
-
         // Close the assembled video file
         fclose($assembledVideoFile);
-
         // Prepare and return the response
         $data = ['assembledVideoPath' => $assembledVideoPath, 'reelId' => $reelId];
         return $data;
