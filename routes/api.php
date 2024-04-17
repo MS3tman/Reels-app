@@ -13,6 +13,7 @@ use App\Http\Controllers\Reel\UploderController;
 use App\Http\Controllers\API\V1\Auth\AuthController as AuthAuthController;
 use App\Http\Controllers\Reel\CategoryController;
 use App\Http\Controllers\Reel\CountryController;
+use App\Http\Controllers\Reel\ReelsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +27,7 @@ use App\Http\Controllers\Reel\CountryController;
 */
 
 Route::pattern('token', '[a-zA-Z0-9]{60}');
+Route::pattern('id', '[0-9]');
 
 Route::prefix('auth')->middleware('guest:sanctum')->group( function(){
     Route::post('login', [LoginController::class, 'login']);
@@ -40,10 +42,17 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('logout', [LoginController::class, 'logout']);
 
     Route::group(['prefix'=>'reel'], function(){
-        Route::group(['prefix'=>'create'], function(){
-            Route::post('data', [UploadController::class, 'uploadReel']);
-            Route::post('chunk', [UploadController::class, 'uploadChunks']);
-        });
+        Route::post('create/data', [UploadController::class, 'uploadReel']);
+        Route::post('create/chunk', [UploadController::class, 'uploadChunks']);
+        Route::get('list', [ReelsController::class, 'reelsList']);
+        Route::get('{id}', [ReelsController::class, 'reelsById']);
+        Route::get('user/list', [ReelsController::class, 'reelsListForUser']);
+        Route::get('user/{id}', [ReelsController::class, 'reelsByIdForUser']);
+        Route::post('store', [ReelsController::class, 'reelsStore']);
+        Route::put('update/{id}', [ReelsController::class, 'reelsUpdate']);
+        Route::put('update/video/{id}', [ReelsController::class, 'reelsVideoUpdate']);
+        Route::put('update/views/{id}', [ReelsController::class, 'reelsViewsUpdate']);
+        Route::delete('delete/{id}', [ReelsController::class, 'reelsDelete']);
 
     });
 
