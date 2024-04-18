@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\ReelsResource;
+use App\Models\ReelComment;
 use Illuminate\Support\Facades\Validator;
 
 class ReelsController extends Controller
@@ -44,7 +45,7 @@ class ReelsController extends Controller
             'title' => 'required|string',
         ]);
         if($validator->fails()){
-            return $this->failure('Required feild is missing.', $validator->errors());
+            return $this->failure('Required field is missing.', $validator->errors());
         }
         $new = new Reel;
         $new->user_id = Auth::id();
@@ -67,7 +68,7 @@ class ReelsController extends Controller
             'title' => 'required|string',
         ]);
         if($validator->fails()){
-            return $this->failure('Required feild is missing.', $validator->errors());
+            return $this->failure('Required field is missing.', $validator->errors());
         }
         $update = Reel::where('user_id', Auth::id())->find($id);
         if(empty($update)){
@@ -104,12 +105,73 @@ class ReelsController extends Controller
         if(empty($reel)){
             return $this->failure('Reel Not Found.');
         }
+        $reel->increment('views');
+        return $this->success('View Updated Successfully.');
+    }
+
+    protected function reelsClicksUpdate(Request $request, $id) {
+        $reel = Reel::find($id);
+        if(empty($reel)){
+            return $this->failure('Reel Not Found.');
+        }
+        $reel->increment('clicks');
+        return $this->success('Reel clicks Updated Successfully.', [
+            'target_url' => $reel->target_url
+        ]);
+    }
+
+    protected function reelsLikesUpdate(Request $request, $id) {
+        $reel = Reel::find($id);
+        if(empty($reel)){
+            return $this->failure('Reel Not Found.');
+        }
+        $reel->increment('likes');
+        return $this->success('Likes Updated Successfully.');
+    }
+
+    protected function reelsHeartsUpdate(Request $request, $id) {
+        $reel = Reel::find($id);
+        if(empty($reel)){
+            return $this->failure('Reel Not Found.');
+        }
+        $reel->increment('hearts');
+        return $this->success('Hearts Updated Successfully.');
+    }
+
+    protected function reelsCommentsList(Request $request, $id) {
+        $reel = Reel::find($id);
+        if(empty($reel)){
+            return $this->failure('Reel Not Found.');
+        }
+        
+    }
+
+    protected function reelsCommentsDelete(Request $request, $id) {
+        $reel = Reel::find($id);
+        if(empty($reel)){
+            return $this->failure('Reel Not Found.');
+        }
+        
+    }
+
+    protected function reelsCommentsAdd(Request $request, $id) {
+        $validator = Validator::make($request->all(),  [
+            'comment' => 'required|max:250',
+        ]);
+        if($validator->fails()){
+            return $this->failure('Comment field is missing.');
+        }
+        $reel = Reel::find($id);
+        if(empty($reel)){
+            return $this->failure('Reel Not Found.');
+        }
         $user_id = Auth::id();
-        $new = new ReelView;
+        $new = new ReelComment;
         $new->user_id = $user_id;
         $new->reel_id = $reel->id;
-        $new->update();
-        return $this->success('View Updated Successfully.');
+        $new->comment = $request->comment;
+        $new->save();
+        return $this->success('Hearts Updated Successfully.');
     }
 
     protected function reelsDelete(Request $request, $id) {

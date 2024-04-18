@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ReelView extends Model
+class ReelComment extends Model
 {
     use HasFactory;
-    protected $table = 'reels_views';
+    protected $table = 'reels_comments';
 }

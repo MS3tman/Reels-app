@@ -52,6 +52,12 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::put('update/{id}', [ReelsController::class, 'reelsUpdate']);
         Route::put('update/video/{id}', [ReelsController::class, 'reelsVideoUpdate']);
         Route::put('update/views/{id}', [ReelsController::class, 'reelsViewsUpdate']);
+        Route::put('target-page/{id}', [ReelsController::class, 'reelsClicksUpdate']);
+        Route::put('update/likes/{id}', [ReelsController::class, 'reelsLikesUpdate']);
+        Route::put('update/hearts/{id}', [ReelsController::class, 'reelsHeartsUpdate']);
+        Route::post('comments/{id}', [ReelsController::class, 'reelsCommentsList']);
+        Route::post('comments/{id}/add', [ReelsController::class, 'reelsCommentsAdd']);
+        Route::delete('comments/delete/{id}', [ReelsController::class, 'reelsCommentsDelete']);
         Route::delete('delete/{id}', [ReelsController::class, 'reelsDelete']);
 
     });

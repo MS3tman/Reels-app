@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reels_views', function (Blueprint $table) {
+        Schema::create('reels_comments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('reel_id');
+            $table->string('comment');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('reel_id')->references('id')->on('reels')->onDelete('cascade');
             $table->timestamps();
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('reels_views');
+        Schema::dropIfExists('reels_comments');
     }
 };
