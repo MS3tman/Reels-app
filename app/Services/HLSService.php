@@ -20,12 +20,10 @@ class HLSService
         if (preg_match($pattern, $fileName, $matches)) {
             $reelId = $matches[1];
         } 
-
         // Define output directory for HLS files
         $hlsFormatDirectory = 'public/hls/' . $fileName;
         // Ensure the directory exists
         Storage::makeDirectory($hlsFormatDirectory);
-
         // Define different quality variants (bitrates/resolutions)
         $variants = [
             ['bitrate' => '200k', 'resolution' => '256x144'], // Equivalent to 144p
@@ -34,15 +32,12 @@ class HLSService
             ['bitrate' => '1000k', 'resolution' => '1280x720'],
             ['bitrate' => '2000k', 'resolution' => '1920x1080'],
         ];
-
         // Array to store variant information for the master playlist
         $variantsInfo = [];
-
         // Generate normal manifests (media playlists) for each quality variant
         foreach ($variants as $index => $variant) {
             $variantDirectory = "{$hlsFormatDirectory}/variant{$index}";
             Storage::makeDirectory($variantDirectory);
-
             // Run FFMpeg to generate HLS segments for each quality variant
             $process = new Process([
                 env('FFMPEG_BINARIES'),
@@ -59,12 +54,10 @@ class HLSService
                 storage_path("app/{$variantDirectory}/{$fileName}.m3u8"),
             ]);
             $process->run();
-
             // Check if FFMpeg process was successful
             if (!$process->isSuccessful()) {
                 throw new ProcessFailedException($process);
             }
-
             // Store variant information for master playlist
             $variantsInfo[] = [
                 'bitrate' => $variant['bitrate'],
@@ -72,7 +65,6 @@ class HLSService
                 'url' => url(Storage::url("{$variantDirectory}/{$fileName}.m3u8")),
             ];
         }
-
         // Generate master playlist (master manifest)
         $masterPlaylistContent = "#EXTM3U\n#EXT-X-VERSION:3\n";
         foreach ($variantsInfo as $variant) {
@@ -80,13 +72,12 @@ class HLSService
             $masterPlaylistContent .= "{$variant['url']}\n";
         }
         Storage::put("{$hlsFormatDirectory}/master.m3u8", $masterPlaylistContent);
-
         // Return data about generated HLS files
         return [
             'hlsFormatDirectory' => $hlsFormatDirectory,
-            'fileName'=>$fileName,
+            'fileName'=>$fileName,  // to remove video file mp4
             'reelId'=>$reelId,
-            'masterPlaylistUrl' => url(Storage::url("{$hlsFormatDirectory}/master.m3u8")),
+            //'masterUrl' => url(Storage::url("app/{$hlsFormatDirectory}/master.m3u8")),
         ];
     }
 

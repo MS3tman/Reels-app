@@ -8,11 +8,10 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\CountriesController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\CategoriesController;
-use App\Http\Controllers\Reel\UploadController;
-use App\Http\Controllers\Reel\UploderController;
 use App\Http\Controllers\API\V1\Auth\AuthController as AuthAuthController;
 use App\Http\Controllers\Reel\CategoryController;
 use App\Http\Controllers\Reel\CountryController;
+use App\Http\Controllers\Reel\ReelChunkController;
 use App\Http\Controllers\Reel\ReelsController;
 
 /*
@@ -42,8 +41,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('logout', [LoginController::class, 'logout']);
 
     Route::group(['prefix'=>'reel'], function(){
-        Route::post('create/data', [UploadController::class, 'uploadReel']);
-        Route::post('create/chunk', [UploadController::class, 'uploadChunks']);
+        Route::post('create/chunk', [ReelChunkController::class, 'uploadChunks']);
         Route::get('list', [ReelsController::class, 'reelsList']);
         Route::get('{id}', [ReelsController::class, 'reelsById']);
         Route::get('user/list', [ReelsController::class, 'reelsListForUser']);

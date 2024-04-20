@@ -3,17 +3,15 @@
 namespace App\Http\Controllers\Reel;
 
 use App\Http\Controllers\Controller;
-use App\Models\Video;
+use App\Models\Reel;
 use App\Services\HLSService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Str;
-use FFMpeg\FFMpeg;
-use FFMpeg\Format\Video\X264;
 
-class UploadController extends Controller
+
+class ReelChunkController extends Controller
 {
     public function uploadChunks(Request $request){
         $validator = Validator::make($request->all(), [
@@ -43,9 +41,10 @@ class UploadController extends Controller
                 $this->cleanUpTemporaryFolder($chunkTempFolder);
                 //store manifest file in database
                 $hlsData = (new HLSService())->hlsFormat($videoPath['assembledVideoPath']);
-                // $reel = Reel::find($hlsData['reelId']);
-                // $reel->url = $hlsData['masterPlaylistUrl'];
-                // $reel->save();
+                $reel = Reel::find($hlsData['reelId']);
+                $reel->video_manifest = $hlsData['hlsFormatDirectory'];
+                //$reel->video_manifest = $hlsData['masterUrl'];
+                $reel->save();
                 //remove video mp4
                 $videoWillRemove = 'public/tempVideo/' . $hlsData['fileName'] . '.mp4';
                 $videoPath = storage_path('app/' . $videoWillRemove);
@@ -71,8 +70,9 @@ class UploadController extends Controller
             Storage::makeDirectory($videoTempFolder);
         }
         // Generate a unique filename for the assembled video
-        $timestamp = now()->format('Y-m-d_His');
-        $uniqueFilename = "{$timestamp}_{$reelId}.mp4";
+        //$timestamp = now()->format('Y-m-d_His');
+        //$uniqueFilename = "{$timestamp}_{$reelId}.mp4";
+        $uniqueFilename = "Reel_{$reelId}.mp4";
         $assembledVideoPath = "{$videoTempFolder}/{$uniqueFilename}";
         // Open the assembled video file for writing
         $assembledVideoFile = fopen(storage_path("app/{$assembledVideoPath}"), 'wb');

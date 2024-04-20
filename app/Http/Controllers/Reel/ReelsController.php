@@ -8,8 +8,11 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\ReelsResource;
+use App\Models\ReelCategory;
 use App\Models\ReelComment;
+use App\Models\ReelCountry;
 use Illuminate\Support\Facades\Validator;
+use PhpParser\Node\Stmt\Foreach_;
 
 class ReelsController extends Controller
 {
@@ -17,6 +20,7 @@ class ReelsController extends Controller
         $reels = Reel::where('status', true)->paginate(10);
         return ReelsResource::collection($reels);
     }
+
     protected function reelsListForUser(Request $request) {
         $user_id = Auth::id();
         $reels = Reel::where('user_id', $user_id)->paginate(10);
@@ -43,6 +47,8 @@ class ReelsController extends Controller
     protected function reelsStore(Request $request) {
         $validator = Validator::make($request->all(),  [
             'title' => 'required|string',
+            'categories'=>'required|json',
+            'countries'=>'required|json'
         ]);
         if($validator->fails()){
             return $this->failure('Required field is missing.', $validator->errors());
@@ -59,6 +65,26 @@ class ReelsController extends Controller
         $new->status = true;
         if(!$new->save()){
             return $this->failure('Something went wrong, Please try again later.');
+        }
+        $categories = json_decode($request->categories, true);
+        $countries = json_decode($request->countries, true);
+        foreach($categories as $category){
+            $newCategory = new ReelCategory();
+            $newCategory->reel_id = $new->id;
+            $newCategory->category_title = $category;
+            $newCategory->save();
+            if(!$newCategory->save()){
+                return $this->failure('Something went wrong, Please try again later.');
+            }
+        }
+        foreach($countries as $country){
+            $newCountry = new ReelCountry();
+            $newCountry->reel_id = $new->id;
+            $newCountry->country_title = $country;
+            $newCountry->save();
+            if(!$newCountry->save()){
+                return $this->failure('Something went wrong, Please try again later.');
+            }
         }
         return $this->success('Reel added Successfully.');
     }
@@ -85,20 +111,42 @@ class ReelsController extends Controller
         if(!$update->update()){
             return $this->failure('Something went wrong, Please try again later.');
         }
+        $categories = json_decode($request->categories, true);
+        $countries = json_decode($request->countries, true);
+        ReelCategory::where('reel_id', $update->id)->delete();
+        foreach($categories as $category){
+            $newCategory = new ReelCategory();
+            $newCategory->reel_id = $update->id;
+            $newCategory->category_title = $category;
+            $newCategory->save();
+            if(!$newCategory->save()){
+                return $this->failure('Something went wrong, Please try again later.');
+            }
+        }
+        ReelCountry::where('reel_id', $update->id)->delete();
+        foreach($countries as $country){
+            $newCountry = new ReelCountry();
+            $newCountry->reel_id = $update->id;
+            $newCountry->country_title = $country;
+            $newCountry->save();
+            if(!$newCountry->save()){
+                return $this->failure('Something went wrong, Please try again later.');
+            }
+        }
         return $this->success('Reel Updated Successfully.');
     }
 
-    protected function reelsVideoUpdate(Request $request, $id) {
-        $update = Reel::where('user_id', Auth::id())->find($id);
-        if(empty($update)){
-            return $this->failure('Reel Not Found.');
-        }
-        $update->video_manifest = $request->video_manifest;
-        if(!$update->update()){
-            return $this->failure('Something went wrong, Please try again later.');
-        }
-        return $this->success('Video Updated Successfully.');
-    }
+    // protected function reelsVideoUpdate(Request $request, $id) {
+    //     $update = Reel::where('user_id', Auth::id())->find($id);
+    //     if(empty($update)){
+    //         return $this->failure('Reel Not Found.');
+    //     }
+    //     $update->video_manifest = $request->video_manifest;
+    //     if(!$update->update()){
+    //         return $this->failure('Something went wrong, Please try again later.');
+    //     }
+    //     return $this->success('Video Updated Successfully.');
+    // }
 
     protected function reelsViewsUpdate(Request $request, $id) {
         $reel = Reel::find($id);

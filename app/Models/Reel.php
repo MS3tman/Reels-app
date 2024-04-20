@@ -29,4 +29,14 @@ class Reel extends Model
     {
         return $this->hasMany(ReelComment::class);
     }
+
+    public function reelCategories()
+    {
+        return $this->hasMany(ReelCategory::class);
+    }
+
+    public function reelCountries()
+    {
+        return $this->hasMany(ReelCountry::class);
+    }
 }
