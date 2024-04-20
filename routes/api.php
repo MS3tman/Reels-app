@@ -35,12 +35,12 @@ Route::prefix('auth')->middleware('guest:sanctum')->group( function(){
     Route::post('forget-password', [LoginController::class, 'forgetPassword']);
     Route::post('reset-password/{token}', [LoginController::class, 'resetPassword']);
     
-    Route::group(['prefix'=>'country'], function(){
-        Route::get('all', [CountryController::class, 'all']);
-        Route::get('filter/{id}', [CountryController::class, 'filter']);
-    });
 });
 
+Route::group(['prefix'=>'country'], function(){
+    Route::get('all', [CountryController::class, 'all']);
+    Route::get('filter/{id}', [CountryController::class, 'filter']);
+});
 
 Route::middleware('auth:sanctum')->group(function(){
     Route::post('logout', [LoginController::class, 'logout']);
