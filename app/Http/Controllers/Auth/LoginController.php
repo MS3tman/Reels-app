@@ -39,7 +39,7 @@ class LoginController extends Controller
         $validator = Validator::make($request->all(), [
             'full_name' => 'required',
             'email' => 'required|email|unique:users',
-            'password' => 'required|min:8|confirmed',
+            'password' => 'required|min:8',
             'country_code' => 'required',
             'phone_number' => 'required|unique:users',
             'address' => '',
@@ -142,7 +142,7 @@ class LoginController extends Controller
     protected function resetPassword(Request $request, $token) {
         $validator = Validator::make($request->all(), [
             'code' => 'required|size:5',
-            'password' => 'required|min:8|confirmed',
+            'password' => 'required|min:8',
         ]);
         if($validator->fails()){
             return $this->failure('Some required fileds is missing.', $validator->errors()->all());
