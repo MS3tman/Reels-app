@@ -35,7 +35,7 @@ class LoginController extends Controller
     }
 
     protected function register(Request $request) {
-        User::truncate();
+        //User::truncate();
         $validator = Validator::make($request->all(), [
             'full_name' => 'required',
             'email' => 'required|email|unique:users',
