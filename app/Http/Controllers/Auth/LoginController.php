@@ -65,10 +65,12 @@ class LoginController extends Controller
         }
         if($new->save()) {
             $new->verify_link = route('verify_register', ['token' => $new->remember_token]);
+            $new->retry_link = route('verify_register', ['token' => $new->remember_token]);
             //Send Email
             Mail::to($new->email)->send(new UserRegister($new, 'Activate your account.', 'register'));
             return $this->success('Done Successfully, Please check your email.', [
-                'verify_link' => $new->verify_link 
+                'verify_link' => $new->verify_link,
+                'retry_link' => $new->retry_link,
             ]);
         }
         return $this->failure('Something wrong, Please try again later');
@@ -90,6 +92,22 @@ class LoginController extends Controller
             return $this->success('The account has been successfully updated.', $this->getUserData($user));
         }
         return $this->failure('Invalid given code.');
+    }
+
+    protected function retryRegister(Request $request, $token) {
+
+        $user = User::where(['remember_token' => $token])->first();
+        if(empty($user)){
+            return $this->failure('Invalid Token.');
+        }
+        $user->vtoken            = rand(10000, 99999);
+        $user->update();
+        $user->verify_link = route('verify_register', ['token' => $user->remember_token]);
+        //Send Email
+        Mail::to($user->email)->send(new UserRegister($user, 'Activate your account.', 'register'));
+        return $this->success('Done Successfully, Please check your email.', [
+            'verify_link' => $user->verify_link 
+        ]);
     }
 
     protected function login(Request $request) {
