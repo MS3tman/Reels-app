@@ -2,17 +2,18 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UsersController;
-use App\Http\Controllers\Reel\DownloadController;
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Admin\CountriesController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Reel\ReelsController;
+use App\Http\Controllers\Reel\CountryController;
+use App\Http\Controllers\Reel\CategoryController;
+use App\Http\Controllers\Reel\DownloadController;
+use App\Http\Controllers\Reel\ReelChunkController;
+use App\Http\Controllers\Admin\CountriesController;
 use App\Http\Controllers\Admin\CategoriesController;
 use App\Http\Controllers\API\V1\Auth\AuthController as AuthAuthController;
-use App\Http\Controllers\Reel\CategoryController;
-use App\Http\Controllers\Reel\CountryController;
-use App\Http\Controllers\Reel\ReelChunkController;
-use App\Http\Controllers\Reel\ReelsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,8 +30,8 @@ Route::pattern('token', '[a-zA-Z0-9]{60}');
 Route::pattern('id', '[0-9]');
 
 
-Route::get('country/all', [CountryController::class, 'all']);
-Route::get('category/all', [CategoryController::class, 'all']);
+Route::get('country/all', [HomeController::class, 'CountriesList']);
+Route::get('category/all', [HomeController::class, 'CategoriesList']);
 
 
 
