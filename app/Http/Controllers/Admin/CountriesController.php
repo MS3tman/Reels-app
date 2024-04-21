@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CountryResource;
 use App\Http\Resources\DefaultCollection;
 use App\Http\Resources\DefaultResource;
 use App\Models\Country;
@@ -19,7 +20,7 @@ class CountriesController extends Controller
             'iso_code'=>'required',
         ]);
         if($validator->fails()){
-            return DefaultResource::failure($validator->errors());
+            return $this->failure($validator->errors());
         }
         $newCountry = new Country();
         $newCountry->name_en = $request->name_en;
@@ -27,16 +28,16 @@ class CountriesController extends Controller
         $newCountry->phone_length = $request->phone_length;
         $newCountry->iso_code = $request->iso_code;
         $newCountry->save();
-        return DefaultResource::success('successfully, country is created');
+        return $this->success('successfully, country is created');
     }
 
 
     public function read(){
         $countries = Country::all();
         if(!$countries){
-            return DefaultResource::failure('not found');
+            return $this->failure('not found');
         }
-        return DefaultCollection::success('Successfully, retrieved all countries', $countries);
+        return new CountryResource($countries);
     }
 
 
@@ -44,9 +45,9 @@ class CountriesController extends Controller
         $country = Country::find($id);
         if($country){
         $country->delete();
-        return DefaultResource::success('Successfully, country is deleted');
+        return $this->success('Successfully, country is deleted');
         }
-        return DefaultResource::failure('country not found');
+        return $this->failure('country not found');
     }
 
 }

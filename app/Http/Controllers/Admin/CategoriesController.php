@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CategoryResource;
 use App\Http\Resources\DefaultCollection;
 use App\Http\Resources\DefaultResource;
 use App\Models\Category;
@@ -19,21 +20,21 @@ class CategoriesController extends Controller
             'image'=>'required'
         ]);
         if($validator->fails()){
-            return DefaultResource::failure($validator->errors());
+            return $this->failure($validator->errors());
         }
         $newCategory = new Category();
         $newCategory->category_title = $request->category_title;
         $imagePath = (new FileHandle())->storeImage($request->image, 'category');
         $newCategory->image = $imagePath;
         $newCategory->save();
-        return DefaultResource::success('successfully, category is created');
+        return $this->success('successfully, category is created');
     }
 
 
     public function read(){
         $categories = Category::all();
         if ($categories->isEmpty()) {
-            return DefaultResource::failure('Categories not found');
+            return $this->failure('Categories not found');
         }
         $data = [];
         foreach($categories as $category){
@@ -44,7 +45,7 @@ class CategoriesController extends Controller
                 'image'=>$image
             ];
         }
-        return DefaultCollection::success('Successfully, all categories',$data);
+        return new CategoryResource($data);
     }
 
 
@@ -52,9 +53,9 @@ class CategoriesController extends Controller
         $category = Category::find($id);
         if($category){
             $category->delete();
-            return DefaultResource::success('category is deleted');
+            return $this->success('category is deleted');
         }
-        return DefaultResource::failure('category not found');
+        return $this->failure('category not found');
     }
 
 
