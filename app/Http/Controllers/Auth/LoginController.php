@@ -70,7 +70,7 @@ class LoginController extends Controller
             Mail::to($new->email)->send(new UserRegister($new, 'Activate your account.', 'register'));
             return $this->success('Done Successfully, Please check your email.', [
                 'verify_link' => $new->verify_link,
-                'retry_link' => $new->retry_register,
+                'retry_link' => $new->retry_link,
             ]);
         }
         return $this->failure('Something wrong, Please try again later');
