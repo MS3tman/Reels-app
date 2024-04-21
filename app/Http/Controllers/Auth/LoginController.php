@@ -65,7 +65,7 @@ class LoginController extends Controller
         }
         if($new->save()) {
             $new->verify_link = route('verify_register', ['token' => $new->remember_token]);
-            $new->retry_link = route('verify_register', ['token' => $new->remember_token]);
+            $new->retry_link = route('retry_register', ['token' => $new->remember_token]);
             //Send Email
             Mail::to($new->email)->send(new UserRegister($new, 'Activate your account.', 'register'));
             return $this->success('Done Successfully, Please check your email.', [
