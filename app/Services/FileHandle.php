@@ -10,8 +10,7 @@ class FileHandle
 {
     public function storeImage($image, $location){
            $imageData = base64_decode($image);
-           $extension = 'jpg'; // Assuming default extension is jpg, you can change this as needed
-           $imagePath = Carbon::now()->toDateString() . "-" . uniqid() . "." . $extension;
+           $imagePath = Carbon::now()->toDateString() . "-" . uniqid() . ".jpg";
            Storage::disk('public')->put($location . '/' . $imagePath, $imageData);
            return $imagePath;
     }
