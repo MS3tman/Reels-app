@@ -103,30 +103,14 @@ class ReelsController extends Controller
         if(!$update->update()){
             return $this->failure('Something went wrong, Please try again later.');
         }
-
-        //$update->countries()->sync([1,2]);
-        // $categories = json_decode($request->categories, true);
-        // $countries = json_decode($request->countries, true);
-        // ReelCategory::where('reel_id', $update->id)->delete();
-        // foreach($categories as $category){
-        //     $newCategory = new ReelCategory();
-        //     $newCategory->reel_id = $update->id;
-        //     $newCategory->category_title = $category;
-        //     $newCategory->save();
-        //     if(!$newCategory->save()){
-        //         return $this->failure('Something went wrong, Please try again later.');
-        //     }
-        // }
-        // ReelCountry::where('reel_id', $update->id)->delete();
-        // foreach($countries as $country){
-        //     $newCountry = new ReelCountry();
-        //     $newCountry->reel_id = $update->id;
-        //     $newCountry->country_title = $country;
-        //     $newCountry->save();
-        //     if(!$newCountry->save()){
-        //         return $this->failure('Something went wrong, Please try again later.');
-        //     }
-        // }
+        if(!empty($request->categories)){
+            $update->categories()->detach();
+            $update->categories()->sync((array)$request->categories);
+        }
+        if(!empty($request->countries)){
+            $update->countries()->detach();
+            $update->countries()->sync((array)$request->countries);
+        }
         return $this->success('Reel Updated Successfully.');
     }
 
