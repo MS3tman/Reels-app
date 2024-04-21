@@ -18,10 +18,9 @@ class FileHandle
 
 
     public function retrieveFile($filePath, $location){
-        if (Storage::exists('public/' . $location.'/' . $filePath)) {
-            $fileData = Storage::disk('public')->get($location.'/' . $filePath);
-            $compressedFileData = base64_encode($fileData);
-            return $compressedFileData;
+        if (Storage::exists("public/{$location}/{$filePath}")) {
+            $imagePath = url(Storage::url("app/{$location}/{$filePath}"));
+            return $imagePath;
         } else {
             return null;
         }
