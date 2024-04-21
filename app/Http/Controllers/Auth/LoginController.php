@@ -29,6 +29,7 @@ class LoginController extends Controller
             'phone_number'=>$userData->phone_number,
             'image'=>$image,
             'address'=>$userData->address,
+            'token'=>$userData->remember_token,
             'token'=>$this->getToken($userData),
         ];
         return $finalUserData;
