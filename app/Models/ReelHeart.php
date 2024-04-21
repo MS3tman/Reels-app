@@ -5,10 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ReelCountry extends Model
+class ReelHeart extends Model
 {
     use HasFactory;
-    protected $table = 'reel_countries';
-
-    
+    protected $table = 'reels_hearts';
 }

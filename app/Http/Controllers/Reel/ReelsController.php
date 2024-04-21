@@ -3,16 +3,20 @@
 namespace App\Http\Controllers\Reel;
 
 use App\Models\Reel;
+use App\Models\ReelLike;
 use App\Models\ReelView;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Resources\ReelsResource;
-use App\Models\ReelCategory;
+use App\Models\ReelHeart;
 use App\Models\ReelComment;
 use App\Models\ReelCountry;
-use Illuminate\Support\Facades\Validator;
+use App\Models\ReelCategory;
+use Illuminate\Http\Request;
 use PhpParser\Node\Stmt\Foreach_;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Resources\ReelsComments;
+use App\Http\Resources\ReelsResource;
+use Illuminate\Support\Facades\Validator;
 
 class ReelsController extends Controller
 {
@@ -47,45 +51,33 @@ class ReelsController extends Controller
     protected function reelsStore(Request $request) {
         $validator = Validator::make($request->all(),  [
             'title' => 'required|string',
-            'categories'=>'required|json',
-            'countries'=>'required|json'
+            'categories'=>'nullable|array',
+            'countries'=>'nullable|array'
         ]);
         if($validator->fails()){
             return $this->failure('Required field is missing.', $validator->errors());
         }
-        $new = new Reel;
-        $new->user_id = Auth::id();
-        $new->title = $request->title;
-        $new->target_url = $request->target_url;
-        $new->target_views = $request->target_views;
-        $new->price = $request->price;
-        $new->offer_type = $request->offer_type;
-        $new->offer = $request->offer;
-        //$new->video_manifest = $request->video_manifest;
-        $new->status = true;
-        if(!$new->save()){
-            return $this->failure('Something went wrong, Please try again later.');
-        }
-        $categories = json_decode($request->categories, true);
-        $countries = json_decode($request->countries, true);
-        foreach($categories as $category){
-            $newCategory = new ReelCategory();
-            $newCategory->reel_id = $new->id;
-            $newCategory->category_title = $category;
-            $newCategory->save();
-            if(!$newCategory->save()){
+        DB::transaction(function ()use($request) {
+            $new = new Reel;
+            $new->user_id = Auth::id();
+            $new->title = $request->title;
+            $new->target_url = $request->target_url;
+            $new->target_views = $request->target_views;
+            $new->price = $request->price;
+            $new->offer_type = $request->offer_type;
+            $new->offer = $request->offer;
+            //$new->video_manifest = $request->video_manifest;
+            $new->status = true;
+            if(!$new->save()){
                 return $this->failure('Something went wrong, Please try again later.');
             }
-        }
-        foreach($countries as $country){
-            $newCountry = new ReelCountry();
-            $newCountry->reel_id = $new->id;
-            $newCountry->country_title = $country;
-            $newCountry->save();
-            if(!$newCountry->save()){
-                return $this->failure('Something went wrong, Please try again later.');
+            if(!empty($request->categories)){
+                $new->categories()->sync((array)$request->categories);
             }
-        }
+            if(!empty($request->countries)){
+                $new->countries()->sync((array)$request->countries);
+            }
+        });
         return $this->success('Reel added Successfully.');
     }
 
@@ -111,28 +103,30 @@ class ReelsController extends Controller
         if(!$update->update()){
             return $this->failure('Something went wrong, Please try again later.');
         }
-        $categories = json_decode($request->categories, true);
-        $countries = json_decode($request->countries, true);
-        ReelCategory::where('reel_id', $update->id)->delete();
-        foreach($categories as $category){
-            $newCategory = new ReelCategory();
-            $newCategory->reel_id = $update->id;
-            $newCategory->category_title = $category;
-            $newCategory->save();
-            if(!$newCategory->save()){
-                return $this->failure('Something went wrong, Please try again later.');
-            }
-        }
-        ReelCountry::where('reel_id', $update->id)->delete();
-        foreach($countries as $country){
-            $newCountry = new ReelCountry();
-            $newCountry->reel_id = $update->id;
-            $newCountry->country_title = $country;
-            $newCountry->save();
-            if(!$newCountry->save()){
-                return $this->failure('Something went wrong, Please try again later.');
-            }
-        }
+
+        //$update->countries()->sync([1,2]);
+        // $categories = json_decode($request->categories, true);
+        // $countries = json_decode($request->countries, true);
+        // ReelCategory::where('reel_id', $update->id)->delete();
+        // foreach($categories as $category){
+        //     $newCategory = new ReelCategory();
+        //     $newCategory->reel_id = $update->id;
+        //     $newCategory->category_title = $category;
+        //     $newCategory->save();
+        //     if(!$newCategory->save()){
+        //         return $this->failure('Something went wrong, Please try again later.');
+        //     }
+        // }
+        // ReelCountry::where('reel_id', $update->id)->delete();
+        // foreach($countries as $country){
+        //     $newCountry = new ReelCountry();
+        //     $newCountry->reel_id = $update->id;
+        //     $newCountry->country_title = $country;
+        //     $newCountry->save();
+        //     if(!$newCountry->save()){
+        //         return $this->failure('Something went wrong, Please try again later.');
+        //     }
+        // }
         return $this->success('Reel Updated Successfully.');
     }
 
@@ -153,7 +147,10 @@ class ReelsController extends Controller
         if(empty($reel)){
             return $this->failure('Reel Not Found.');
         }
-        $reel->increment('views');
+        $reelV = new ReelView;
+        $reelV->user_id = Auth::id();
+        $reelV->reel_id = $reel->id;
+        $reelV->save();
         return $this->success('View Updated Successfully.');
     }
 
@@ -173,7 +170,10 @@ class ReelsController extends Controller
         if(empty($reel)){
             return $this->failure('Reel Not Found.');
         }
-        $reel->increment('likes');
+        $reelL = new ReelLike;
+        $reelL->user_id = Auth::id();
+        $reelL->reel_id = $reel->id;
+        $reelL->save();
         return $this->success('Likes Updated Successfully.');
     }
 
@@ -182,34 +182,38 @@ class ReelsController extends Controller
         if(empty($reel)){
             return $this->failure('Reel Not Found.');
         }
-        $reel->increment('hearts');
+        $reelH = new ReelHeart;
+        $reelH->user_id = Auth::id();
+        $reelH->reel_id = $reel->id;
+        $reelH->save();
         return $this->success('Hearts Updated Successfully.');
     }
 
-    protected function reelsCommentsList(Request $request, $id) {
-        $reel = Reel::find($id);
+    protected function reelsCommentsList(Request $request, $reelId) {
+        $reel = Reel::find($reelId);
         if(empty($reel)){
             return $this->failure('Reel Not Found.');
         }
-        
+        $comments = ReelComment::where('reel_id', $reel->id)->paginate(10);
+        return ReelsComments::collection($comments);
     }
 
-    protected function reelsCommentsDelete(Request $request, $id) {
-        $reel = Reel::find($id);
-        if(empty($reel)){
-            return $this->failure('Reel Not Found.');
+    protected function reelsCommentsDelete(Request $request, $reelId, $id) {
+        $del = ReelComment::where(['reel_id' => $reelId, 'id' => $id])->delete();
+        if(!$del){
+            return $this->failure('Comment is Not Exists.');
         }
-        
+        return $this->success('Comment Deleted Successfully.');
     }
 
-    protected function reelsCommentsAdd(Request $request, $id) {
+    protected function reelsCommentsAdd(Request $request, $reelId) {
         $validator = Validator::make($request->all(),  [
             'comment' => 'required|max:250',
         ]);
         if($validator->fails()){
             return $this->failure('Comment field is missing.');
         }
-        $reel = Reel::find($id);
+        $reel = Reel::find($reelId);
         if(empty($reel)){
             return $this->failure('Reel Not Found.');
         }
@@ -219,7 +223,7 @@ class ReelsController extends Controller
         $new->reel_id = $reel->id;
         $new->comment = $request->comment;
         $new->save();
-        return $this->success('Hearts Updated Successfully.');
+        return $this->success('Comment Added Successfully.');
     }
 
     protected function reelsDelete(Request $request, $id) {

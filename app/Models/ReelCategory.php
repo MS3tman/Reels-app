@@ -10,7 +10,7 @@ class ReelCategory extends Model
     use HasFactory;
 
     protected $fillable = [
-        'reel-id',
+        'reel_id',
         'category_title'
     ];
 

@@ -28,6 +28,12 @@ use App\Http\Controllers\Reel\ReelsController;
 Route::pattern('token', '[a-zA-Z0-9]{60}');
 Route::pattern('id', '[0-9]');
 
+
+Route::get('country/all', [CountryController::class, 'all']);
+Route::get('category/all', [CategoryController::class, 'all']);
+
+
+
 Route::prefix('auth')->middleware('guest:sanctum')->group( function(){
     Route::post('login', [LoginController::class, 'login']);
     Route::post('register', [LoginController::class, 'register']);
@@ -37,13 +43,12 @@ Route::prefix('auth')->middleware('guest:sanctum')->group( function(){
     
 });
 
-Route::group(['prefix'=>'country'], function(){
-    Route::get('all', [CountryController::class, 'all']);
-    Route::get('filter/{id}', [CountryController::class, 'filter']);
-});
-
 Route::middleware('auth:sanctum')->group(function(){
+
     Route::post('logout', [LoginController::class, 'logout']);
+    Route::get('profile', [UsersController::class, 'profile']);
+    Route::post('profile', [UsersController::class, 'profilePost']);
+    Route::get('download-video', [DownloadController::class, 'allVideo']);
 
     Route::group(['prefix'=>'reel'], function(){
         Route::post('create/chunk', [ReelChunkController::class, 'uploadChunks']);
@@ -58,24 +63,16 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::put('target-page/{id}', [ReelsController::class, 'reelsClicksUpdate']);
         Route::put('update/likes/{id}', [ReelsController::class, 'reelsLikesUpdate']);
         Route::put('update/hearts/{id}', [ReelsController::class, 'reelsHeartsUpdate']);
-        Route::post('comments/{id}', [ReelsController::class, 'reelsCommentsList']);
-        Route::post('comments/{id}/add', [ReelsController::class, 'reelsCommentsAdd']);
-        Route::delete('comments/delete/{id}', [ReelsController::class, 'reelsCommentsDelete']);
+        Route::post('comments/{reelId}', [ReelsController::class, 'reelsCommentsList']);
+        Route::post('comments/{reelId}/add', [ReelsController::class, 'reelsCommentsAdd']);
+        Route::delete('comments/{reelId}/delete/{id}', [ReelsController::class, 'reelsCommentsDelete']);
         Route::delete('delete/{id}', [ReelsController::class, 'reelsDelete']);
 
     });
 
 
-    Route::group(['prefix'=>'category'], function(){
-        Route::get('all', [CategoryController::class, 'all']);
-        Route::get('filter/{id}', [CategoryController::class, 'filter']);
-    });
 
-
-    Route::get('profile', [UsersController::class, 'profile']);
-    Route::post('profile', [UsersController::class, 'profilePost']);
-
-    Route::get('download-video', [DownloadController::class, 'allVideo']);
+    
     
 
 });

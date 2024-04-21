@@ -10,14 +10,14 @@ class Reel extends Model
     use HasFactory;
     protected $table = 'reels';
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function views()
     {
         return $this->hasMany(ReelView::class);
-    }
-
-    public function clicks()
-    {
-        return $this->hasMany(ReelClick::class);
     }
 
     public function hearts()
@@ -30,13 +30,13 @@ class Reel extends Model
         return $this->hasMany(ReelComment::class);
     }
 
-    public function reelCategories()
+    public function countries()
     {
-        return $this->hasMany(ReelCategory::class);
+        return $this->belongsToMany(Country::class);
     }
 
-    public function reelCountries()
+    public function categories()
     {
-        return $this->hasMany(ReelCountry::class);
+        return $this->belongsToMany(Category::class);
     }
 }
