@@ -29,7 +29,6 @@ class LoginController extends Controller
             'phone_number'=>$userData->phone_number,
             'image'=>$image,
             'address'=>$userData->address,
-            'token'=>$userData->remember_token,
             'token'=>$this->getToken($userData),
         ];
         return $finalUserData;
@@ -66,10 +65,12 @@ class LoginController extends Controller
         }
         if($new->save()) {
             $new->verify_link = route('verify_register', ['token' => $new->remember_token]);
+            $new->retry_link = route('verify_register', ['token' => $new->remember_token]);
             //Send Email
             Mail::to($new->email)->send(new UserRegister($new, 'Activate your account.', 'register'));
             return $this->success('Done Successfully, Please check your email.', [
-                'verify_link' => $new->verify_link 
+                'verify_link' => $new->verify_link,
+                'retry_link' => $new->retry_register,
             ]);
         }
         return $this->failure('Something wrong, Please try again later');
