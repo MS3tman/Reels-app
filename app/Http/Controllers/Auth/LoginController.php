@@ -95,7 +95,6 @@ class LoginController extends Controller
     }
 
     protected function retryRegister(Request $request, $token) {
-
         $user = User::where(['remember_token' => $token])->first();
         if(empty($user)){
             return $this->failure('Invalid Token.');
@@ -148,13 +147,15 @@ class LoginController extends Controller
         if($user->active == false){
             return $this->failure('Your Email is not active yet.');
         }
-
         $user->remember_token    = Str::random(60);
         $user->vtoken            = rand(10000, 99999);
         $user->update();
+        $reset_password = route('reset_password', ['token' => $user->remember_token]);
         //Send Email
         Mail::to($user->email)->send(new UserRegister($user, 'Password Reset Request.', 'forget'));
-        return $this->success('Please check your email to reset the password.');
+        return $this->success('Please check your email to reset the password.', [
+            'reset_password' => $reset_password,
+        ]);
     }
 
     protected function resetPassword(Request $request, $token) {

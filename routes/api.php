@@ -41,8 +41,7 @@ Route::prefix('auth')->middleware('guest:sanctum')->group( function(){
     Route::get('register-verify/{token}', [LoginController::class, 'verifyRegister'])->name('verify_register');
     Route::get('register-retry/{token}', [LoginController::class, 'retryRegister'])->name('retry_register');
     Route::post('forget-password', [LoginController::class, 'forgetPassword']);
-    Route::post('reset-password/{token}', [LoginController::class, 'resetPassword']);
-    
+    Route::post('reset-password/{token}', [LoginController::class, 'resetPassword'])->name('reset_password');    
 });
 
 Route::middleware('auth:sanctum')->group(function(){
