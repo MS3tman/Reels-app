@@ -68,6 +68,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::post('comments/{reelId}/add', [ReelsController::class, 'reelsCommentsAdd']);
         Route::delete('comments/{reelId}/delete/{id}', [ReelsController::class, 'reelsCommentsDelete']);
         Route::delete('delete/{id}', [ReelsController::class, 'reelsDelete']);
+        Route::put('update/wishlist/{id}', [ReelsController::class, 'reelsWishlistUpdate']);
 
     });
 

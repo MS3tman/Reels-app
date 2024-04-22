@@ -16,6 +16,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\ReelsComments;
 use App\Http\Resources\ReelsResource;
+use App\Models\Wishlist;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ReelsController extends Controller
@@ -149,17 +151,6 @@ class ReelsController extends Controller
         ]);
     }
 
-    // protected function reelsClicksUpdate(Request $request, $id) {
-    //     $reel = ReelClic::find($id);
-    //     if(empty($reel)){
-    //         return $this->failure('Reel Not Found.');
-    //     }
-    //     $reel->increment('clicks');
-    //     return $this->success('Reel clicks Updated Successfully.', [
-    //         'target_url' => $reel->target_url
-    //     ]);
-    // }
-
     // protected function reelsLikesUpdate(Request $request, $id) {
     //     $reel = Reel::find($id);
     //     if(empty($reel)){
@@ -243,13 +234,32 @@ class ReelsController extends Controller
         return $this->success('Comment Added Successfully.');
     }
 
+    protected function reelsWishlistUpdate(Request $request, $id){
+        $reel = Reel::find($id);
+        if(empty($reel)){
+            return $this->failure('Reel Not Found.');
+        }
+        $wishlist = Wishlist::where('id', $id)->where('user_id', Auth::user()->id)->first();
+        if(!empty($wishlist)){
+            $wishlist->delete();
+            return $this->failure('Reel Removed from Wishlist.');
+        }
+        $wishlist = new Wishlist();
+        $wishlist->user_id = Auth::id();
+        $wishlist->reel_id = $id;
+        $wishlist->save();
+        return $this->success('Reel Added Successfully in Wishlist.');
+    }
+
     protected function reelsDelete(Request $request, $id) {
         $user_id = Auth::id();
         $reel = Reel::where('user_id', $user_id)->find($id);
         if(empty($reel)){
             return $this->failure('Reel Not Found.');
         }
+        $reelHls = $reel->video_manifest;
         $reel->delete();
+        Storage::deleteDirectory($reelHls);
         return $this->success('Reel Deleted successfully.');
     }
 }

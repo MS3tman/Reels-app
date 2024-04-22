@@ -39,4 +39,9 @@ class Reel extends Model
     {
         return $this->belongsToMany(Category::class);
     }
+
+    public function wishlist()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
 }
