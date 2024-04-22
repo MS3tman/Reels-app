@@ -40,10 +40,12 @@ class LoginController extends Controller
             'full_name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8',
+            'bdate' => 'required|date',
+            'gender' => 'nullable|in:m,f',
             'country_code' => 'required',
             'phone_number' => 'required|unique:users',
-            'address' => '',
-            'image' => '',
+            'address.lat' => 'nullable|numeric',
+            'address.lat' => 'nullable|numeric',
         ]);
         if($validator->fails()){
             return $this->failure('Some required fileds is missing.', $validator->errors()->all());
@@ -51,6 +53,8 @@ class LoginController extends Controller
         $new                    = new User;
         $new->full_name         = $request->full_name;
         $new->email             = $request->email;
+        $new->bdate             = $request->bdate;
+        $new->gender             = $request->gender;
         $new->country_code      = $request->country_code;
         $new->phone_number      = $request->phone_number;
         $new->address           = $request->address;
