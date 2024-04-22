@@ -149,16 +149,44 @@ class ReelsController extends Controller
         ]);
     }
 
+    // protected function reelsClicksUpdate(Request $request, $id) {
+    //     $reel = ReelClic::find($id);
+    //     if(empty($reel)){
+    //         return $this->failure('Reel Not Found.');
+    //     }
+    //     $reel->increment('clicks');
+    //     return $this->success('Reel clicks Updated Successfully.', [
+    //         'target_url' => $reel->target_url
+    //     ]);
+    // }
+
+    // protected function reelsLikesUpdate(Request $request, $id) {
+    //     $reel = Reel::find($id);
+    //     if(empty($reel)){
+    //         return $this->failure('Reel Not Found.');
+    //     }
+    //     $reelL = new ReelLike;
+    //     $reelL->user_id = Auth::id();
+    //     $reelL->reel_id = $reel->id;
+    //     $reelL->save();
+    //     return $this->success('Likes Updated Successfully.');
+    // }
+
     protected function reelsLikesUpdate(Request $request, $id) {
         $reel = Reel::find($id);
         if(empty($reel)){
             return $this->failure('Reel Not Found.');
         }
+        $reelL = ReelLike::where('id', $id)->where('user_id', Auth::user()->id)->first();
+        if(!empty($reelL)){
+            $reelL->delete();
+            return $this->success('Like Removed Successfully.');
+        }
         $reelL = new ReelLike;
         $reelL->user_id = Auth::id();
-        $reelL->reel_id = $reel->id;
+        $reelL->reel_id = $id;
         $reelL->save();
-        return $this->success('Likes Updated Successfully.');
+        return $this->success('Like Created Successfully.');
     }
 
     protected function reelsHeartsUpdate(Request $request, $id) {
@@ -166,11 +194,16 @@ class ReelsController extends Controller
         if(empty($reel)){
             return $this->failure('Reel Not Found.');
         }
+        $reelH = ReelHeart::where('id', $id)->where('user_id', Auth::user()->id)->first();
+        if(!empty($reelH)){
+            $reelH->delete();
+            return $this->failure('Heart Removed Successfully.');
+        }
         $reelH = new ReelHeart;
         $reelH->user_id = Auth::id();
-        $reelH->reel_id = $reel->id;
+        $reelH->reel_id = $id;
         $reelH->save();
-        return $this->success('Hearts Updated Successfully.');
+        return $this->success('Hearts Created Successfully.');
     }
 
     protected function reelsCommentsList(Request $request, $reelId) {

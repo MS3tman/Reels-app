@@ -29,6 +29,8 @@ class LoginController extends Controller
             'phone_number'=>$userData->phone_number,
             'image'=>$image,
             'address'=>$userData->address,
+            'bdate'=>$userData->bdate,
+            'gander'=>$userData->gander,
             'token'=>$this->getToken($userData),
         ];
         return $finalUserData;
@@ -40,7 +42,7 @@ class LoginController extends Controller
             'full_name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8',
-            'bdate' => 'required|date',
+            'bdate' => 'date',
             'gender' => 'nullable|in:m,f',
             'country_code' => 'required',
             'phone_number' => 'required|unique:users',
