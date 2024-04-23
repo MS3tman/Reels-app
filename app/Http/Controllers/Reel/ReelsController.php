@@ -237,7 +237,7 @@ class ReelsController extends Controller
         if(empty($reel)){
             return $this->failure('Reel Not Found.');
         }
-        $wishlist = Wishlist::where('id', $id)->where('user_id', Auth::user()->id)->first();
+        $wishlist = Wishlist::where('id', $id)->where('user_id', Auth::id())->first();
         if(!empty($wishlist)){
             $wishlist->delete();
             return $this->failure('Reel Removed from Wishlist.');
