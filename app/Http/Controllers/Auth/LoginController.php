@@ -108,11 +108,13 @@ class LoginController extends Controller
         }
         $user->vtoken            = rand(10000, 99999);
         $user->update();
+        $reset_password = route('reset_password', ['token' => $user->remember_token]);
         $user->verify_link = route('verify_register', ['token' => $user->remember_token]);
         $user->check_code = route('check_code', ['token' => $user->remember_token]);
         //Send Email
         Mail::to($user->email)->send(new UserRegister($user, 'Activate your account.', 'register'));
         return $this->success('Done Successfully, Please check your email.', [
+            'reset_password' => $reset_password,
             'verify_link' => $user->verify_link,
             'check_code' => $user->check_code,
         ]);
