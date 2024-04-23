@@ -168,16 +168,15 @@ class ReelsController extends Controller
         if(empty($reel)){
             return $this->failure('Reel Not Found.');
         }
-        $reelL = ReelLike::where('id', $id)->where('user_id', Auth::user()->id)->first();
-        if(!empty($reelL)){
-            $reelL->delete();
-            return $this->success('Like Removed Successfully.');
+        $reelAction = ReelLike::firstOrNew(['reel_id' => $id, 'user_id' => Auth::id()]);
+        if(!$reelAction->exists){
+            $reelAction->save();
+            $action = 'Like';
+        }else{
+            $reelAction->delete();
+            $action = 'Unlike';
         }
-        $reelL = new ReelLike;
-        $reelL->user_id = Auth::id();
-        $reelL->reel_id = $id;
-        $reelL->save();
-        return $this->success('Like Created Successfully.');
+        return $this->success($action . ' Done Successfully.');
     }
 
     protected function reelsHeartsUpdate(Request $request, $id) {
@@ -185,16 +184,15 @@ class ReelsController extends Controller
         if(empty($reel)){
             return $this->failure('Reel Not Found.');
         }
-        $reelH = ReelHeart::where('id', $id)->where('user_id', Auth::user()->id)->first();
-        if(!empty($reelH)){
-            $reelH->delete();
-            return $this->failure('Heart Removed Successfully.');
+        $reelAction = ReelHeart::firstOrNew(['reel_id' => $id, 'user_id' => Auth::id()]);
+        if(!$reelAction->exists){
+            $reelAction->save();
+            $action = 'Heart';
+        }else{
+            $reelAction->delete();
+            $action = 'UnHeart';
         }
-        $reelH = new ReelHeart;
-        $reelH->user_id = Auth::id();
-        $reelH->reel_id = $id;
-        $reelH->save();
-        return $this->success('Hearts Created Successfully.');
+        return $this->success($action . ' Done Successfully.');
     }
 
     protected function reelsCommentsList(Request $request, $reelId) {

@@ -42,7 +42,7 @@ class LoginController extends Controller
             'full_name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8',
-            'bdate' => 'date',
+            'bdate' => 'nullable|date',
             'gender' => 'nullable|in:m,f',
             'country_code' => 'required',
             'phone_number' => 'required|unique:users',
@@ -52,6 +52,7 @@ class LoginController extends Controller
         if($validator->fails()){
             return $this->failure('Some required fileds is missing.', $validator->errors()->all());
         }
+        dd(5);
         $new                    = new User;
         $new->full_name         = $request->full_name;
         $new->email             = $request->email;
@@ -91,6 +92,9 @@ class LoginController extends Controller
         }
         $user = User::where(['remember_token' => $token, 'vtoken' => $request->code])->first();
         if(!empty($user)){
+            if($request->filled('status')){
+                return $this->success('The sent code is working well.');
+            }
             $user->remember_token    = '';
             $user->active            = true;
             $user->vtoken            = '';

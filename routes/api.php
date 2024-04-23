@@ -27,7 +27,7 @@ use App\Http\Controllers\API\V1\Auth\AuthController as AuthAuthController;
 */
 
 Route::pattern('token', '[a-zA-Z0-9]{60}');
-Route::pattern('id', '[0-9]');
+//Route::pattern('id', '[0-9]');
 
 
 Route::get('country/all', [HomeController::class, 'CountriesList']);
@@ -60,8 +60,8 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::post('store', [ReelsController::class, 'reelsStore']);
         Route::put('update/{id}', [ReelsController::class, 'reelsUpdate']);
         Route::put('update/video/{id}', [ReelsController::class, 'reelsVideoUpdate']);
-        Route::put('update/views/{id}', [ReelsController::class, 'reelsViewsUpdate']);
         Route::put('target-page/{id}', [ReelsController::class, 'reelsClicksUpdate']);
+        Route::put('update/views/{id}', [ReelsController::class, 'reelsViewsUpdate']);
         Route::put('update/likes/{id}', [ReelsController::class, 'reelsLikesUpdate']);
         Route::put('update/hearts/{id}', [ReelsController::class, 'reelsHeartsUpdate']);
         Route::post('comments/{reelId}', [ReelsController::class, 'reelsCommentsList']);

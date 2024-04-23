@@ -9,4 +9,5 @@ class ReelHeart extends Model
 {
     use HasFactory;
     protected $table = 'reels_hearts';
+    protected $fillable = ['reel_id', 'user_id'];
 }

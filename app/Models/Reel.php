@@ -20,6 +20,11 @@ class Reel extends Model
         return $this->hasMany(ReelView::class);
     }
 
+    public function likes()
+    {
+        return $this->hasMany(ReelLike::class);
+    }
+
     public function hearts()
     {
         return $this->hasMany(ReelHeart::class);
