@@ -52,7 +52,6 @@ class LoginController extends Controller
         if($validator->fails()){
             return $this->failure('Some required fileds is missing.', $validator->errors()->all());
         }
-        dd(5);
         $new                    = new User;
         $new->full_name         = $request->full_name;
         $new->email             = $request->email;
@@ -73,6 +72,7 @@ class LoginController extends Controller
         if($new->save()) {
             $new->verify_link = route('verify_register', ['token' => $new->remember_token]);
             $new->retry_link = route('retry_register', ['token' => $new->remember_token]);
+            $new->check_code = route('check_code', ['token' => $new->remember_token]);
             //Send Email
             Mail::to($new->email)->send(new UserRegister($new, 'Activate your account.', 'register'));
             return $this->success('Done Successfully, Please check your email.', [
@@ -92,9 +92,6 @@ class LoginController extends Controller
         }
         $user = User::where(['remember_token' => $token, 'vtoken' => $request->code])->first();
         if(!empty($user)){
-            if($request->filled('status')){
-                return $this->success('The sent code is working well.');
-            }
             $user->remember_token    = '';
             $user->active            = true;
             $user->vtoken            = '';
@@ -111,11 +108,15 @@ class LoginController extends Controller
         }
         $user->vtoken            = rand(10000, 99999);
         $user->update();
+        $reset_password = route('reset_password', ['token' => $user->remember_token]);
         $user->verify_link = route('verify_register', ['token' => $user->remember_token]);
+        $user->check_code = route('check_code', ['token' => $user->remember_token]);
         //Send Email
         Mail::to($user->email)->send(new UserRegister($user, 'Activate your account.', 'register'));
         return $this->success('Done Successfully, Please check your email.', [
-            'verify_link' => $user->verify_link 
+            'reset_password' => $reset_password,
+            'verify_link' => $user->verify_link,
+            'check_code' => $user->check_code,
         ]);
     }
 
@@ -161,11 +162,29 @@ class LoginController extends Controller
         $user->vtoken            = rand(10000, 99999);
         $user->update();
         $reset_password = route('reset_password', ['token' => $user->remember_token]);
+        $check_code = route('check_code', ['token' => $user->remember_token]);
+        $retry_link = route('retry_register', ['token' => $user->remember_token]);
         //Send Email
         Mail::to($user->email)->send(new UserRegister($user, 'Password Reset Request.', 'forget'));
         return $this->success('Please check your email to reset the password.', [
             'reset_password' => $reset_password,
+            'check_code' => $check_code,
+            'retry_link' => $retry_link,
         ]);
+    }
+
+    protected function checkCode(Request $request, $token) {
+        $validator = Validator::make($request->all(), [
+            'code' => 'required|size:5',
+        ]);
+        if($validator->fails()){
+            return $this->failure('Invalid given code.');
+        }
+        $user = User::where(['remember_token' => $token, 'vtoken' => $request->code])->first();
+        if(!empty($user)){
+            return $this->success('token is valid.');
+        }
+        return $this->failure('Invalid given code.');
     }
 
     protected function resetPassword(Request $request, $token) {
