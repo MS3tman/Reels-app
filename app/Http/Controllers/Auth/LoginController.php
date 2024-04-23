@@ -160,11 +160,12 @@ class LoginController extends Controller
         $user->vtoken            = rand(10000, 99999);
         $user->update();
         $reset_password = route('reset_password', ['token' => $user->remember_token]);
+        $check_code = route('check_code', ['token' => $user->remember_token]);
         //Send Email
         Mail::to($user->email)->send(new UserRegister($user, 'Password Reset Request.', 'forget'));
         return $this->success('Please check your email to reset the password.', [
             'reset_password' => $reset_password,
-            'check_code' => $user->check_code,
+            'check_code' => $check_code,
         ]);
     }
 
