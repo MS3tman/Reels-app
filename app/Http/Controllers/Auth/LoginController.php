@@ -52,7 +52,6 @@ class LoginController extends Controller
         if($validator->fails()){
             return $this->failure('Some required fileds is missing.', $validator->errors()->all());
         }
-        dd(5);
         $new                    = new User;
         $new->full_name         = $request->full_name;
         $new->email             = $request->email;
