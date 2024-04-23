@@ -78,7 +78,6 @@ class LoginController extends Controller
             return $this->success('Done Successfully, Please check your email.', [
                 'verify_link' => $new->verify_link,
                 'retry_link' => $new->retry_link,
-                'check_code' => $new->check_code,
             ]);
         }
         return $this->failure('Something wrong, Please try again later');
@@ -165,6 +164,7 @@ class LoginController extends Controller
         Mail::to($user->email)->send(new UserRegister($user, 'Password Reset Request.', 'forget'));
         return $this->success('Please check your email to reset the password.', [
             'reset_password' => $reset_password,
+            'check_code' => $user->check_code,
         ]);
     }
 
