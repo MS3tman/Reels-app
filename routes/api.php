@@ -71,6 +71,9 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::delete('delete/{id}', [ReelsController::class, 'reelsDelete']);
         Route::put('update/wishlist/{id}', [ReelsController::class, 'reelsWishlistUpdate']);
 
+        Route::post('create/copoun', [ReelsController::class, 'createCopoun']);
+        Route::get('copoun/{id}', [ReelsController::class, 'showCopounById']);
+
     });
 
 

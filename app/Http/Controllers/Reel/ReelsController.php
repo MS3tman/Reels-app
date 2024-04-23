@@ -16,7 +16,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\ReelsComments;
 use App\Http\Resources\ReelsResource;
+use App\Models\ReelCopoun;
 use App\Models\Wishlist;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -248,6 +250,52 @@ class ReelsController extends Controller
         $wishlist->save();
         return $this->success('Reel Added Successfully in Wishlist.');
     }
+
+    protected function createCopoun(Request $request){
+        $validator = Validator::make($request->all(), [
+            'reel_id'=>'required|exists:reels,id',
+            'copoun_name'=>'required',
+            'discount'=>'required',
+            'location'=>'required|json',
+            'expiry_date'=>'required|date',
+            'target_copouns'=>'required',
+        ]);
+        if($validator->fails()){
+            return $this->failure($validator->errors());
+        }
+        $checkReel = Reel::find($request->reel_id);
+        if(empty($checkReel)){
+            return $this->failure('Reel not found');
+        }
+        $copoun = new ReelCopoun();
+        $copoun->reel_id = $request->reel_id;
+        $copoun->copoun_name = $request->copoun_name;
+        $copoun->discount = $request->discount;
+        $copoun->location = $request->location;
+        $copoun->expiry_date = $request->expiry_date;
+        $copoun->target_copouns = $request->target_copouns;
+        $copoun->copoun_price = $request->copoun_price;
+        $copoun->total_price = $request->total_price;
+        if($copoun->save()){
+            return $this->success('Copoun Create Successfully');
+        }else{
+            return $this->failure('Failed to create coupon. Please try again later.');
+        }
+    }
+
+    protected function showCopounById($reelId){
+        $checkReel = Reel::find($reelId);
+        if(empty($checkReel)){
+            return $this->failure('Reel not found');
+        }
+        $checkReelCopoun = ReelCopoun::where('reel_id', $reelId)->where('target_copouns', '>', 0)->where('expiry_date', '<=', Carbon::now())->first();
+        if(empty($checkReelCopoun)){
+            return $this->failure('This reel does not have any coupons');
+        }
+        return $this->success('Successfully retrieved coupons for the reel', $checkReelCopoun);
+    }
+
+
 
     protected function reelsDelete(Request $request, $id) {
         $user_id = Auth::id();
