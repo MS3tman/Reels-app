@@ -2,262 +2,96 @@
 
 namespace App\Http\Controllers\Reel;
 
+use Carbon\Carbon;
 use App\Models\Reel;
-use App\Models\ReelLike;
-use App\Models\ReelView;
-use App\Models\ReelHeart;
-use App\Models\ReelComment;
-use App\Models\ReelCountry;
-use App\Models\ReelCategory;
+use App\Models\Coupon;
+use App\Models\Campain;
 use Illuminate\Http\Request;
-use PhpParser\Node\Stmt\Foreach_;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Resources\ReelsComments;
-use App\Http\Resources\ReelsResource;
-use App\Models\Wishlist;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Validator;
-
+use App\Http\Controllers\Reel\Traits\ReelAccessors;
+use App\Http\Controllers\Reel\Traits\ReelComments;
+use App\Http\Controllers\Reel\Traits\ReelVideo;
 class ReelsController extends Controller
 {
-    protected function reelsList(Request $request) {
-        $reels = Reel::where('status', true)->paginate(10);
-        return ReelsResource::collection($reels);
-    }
+    use ReelComments, ReelAccessors, ReelVideo;
 
-    protected function reelsListForUser(Request $request) {
-        $user_id = Auth::id();
-        $reels = Reel::where('user_id', $user_id)->paginate(10);
-        return ReelsResource::collection($reels);
-    }
-
-    protected function reelsById(Request $request, $id) {
-        $reel = Reel::where('status', true)->find($id);
-        if(empty($reel)){
-            return $this->failure('Reel Not Found.');
-        }
-        return new ReelsResource($reel);
-    }
-
-    protected function reelsByIdForUser(Request $request, $id) {
-        $user_id = Auth::id();
-        $reel = Reel::where('user_id', $user_id)->find($id);
-        if(empty($reel)){
-            return $this->failure('Reel Not Found.');
-        }
-        return new ReelsResource($reel);
-    }
-
-    protected function reelsStore(Request $request) {
+    public function ReelAddNew(Request $request)
+    {
         $validator = Validator::make($request->all(),  [
             'title' => 'required|string',
+            'target_url' => 'required|url',
+            'company_name' => 'required|string',
+            'target_views' => 'required|integer',
+            'expire_date' => 'required|date',
             'categories'=>'nullable|array',
             'countries'=>'nullable|array'
         ]);
         if($validator->fails()){
-            return $this->failure('Required field is missing.', $validator->errors());
+            return $this->failure('Required fields is missing.', $validator->errors());
         }
-        DB::transaction(function ()use($request) {
+            
+        try{
+
+            DB::beginTransaction();
             $new = new Reel;
             $new->user_id = Auth::id();
             $new->title = $request->title;
+            $new->company_name = $request->company_name;
+            $new->logo = $request->logo;
             $new->target_url = $request->target_url;
-            $new->target_views = $request->target_views;
-            $new->price = $request->price;
-            $new->offer_type = $request->offer_type;
-            $new->offer = $request->offer;
-            //$new->video_manifest = $request->video_manifest;
-            $new->status = true;
-            if(!$new->save()){
-                return $this->failure('Something went wrong, Please try again later.');
-            }
-            if(!empty($request->categories)){
-                $new->categories()->sync((array)$request->categories);
-            }
-            if(!empty($request->countries)){
-                $new->countries()->sync((array)$request->countries);
-            }
-        });
+            $new->save();
+    
+            $campain = new Campain;
+            $campain->reel_id = $new->id;
+            $campain->target_views = $request->target_views;
+            $campain->price = 0.1;
+            $campain->per_num = $request->per_num;
+            $campain->code_num = $request->code_num;
+            $expire_date = Carbon::parse($request->expire_date);
+            $campain->expire_date = $expire_date->format('Y-m-d');
+            $campain->status = $request->status;
+            $campain->saveOrFail();
+    
+            $new->categories()->sync((array)$request->categories);
+            $new->countries()->sync((array)$request->countries);
+    
+            DB::commit();
+        }catch(QueryException $e){
+            return $this->failure('Please make sure to add valid data.');
+        }
+            
         return $this->success('Reel added Successfully.');
     }
 
-    protected function reelsUpdate(Request $request, $id) {
+    function ReelAddNewCoupon(Request $request) 
+    {
         $validator = Validator::make($request->all(),  [
-            'title' => 'required|string',
+            'campain_id' => 'required|exists:campains,id',
+            'name' => 'required|string',
+            'discount' => 'required|numeric',
+            'locations' => 'required|array',
+            'expire_date' => 'required|date',
+            'count' => 'required|integer',
         ]);
         if($validator->fails()){
-            return $this->failure('Required field is missing.', $validator->errors());
+            return $this->failure('Required fields is missing.', $validator->errors());
         }
-        $update = Reel::where('user_id', Auth::id())->find($id);
-        if(empty($update)){
-            return $this->failure('Reel Not Found.');
+        //campain_id-name-discount-locations-expire_date-count-price
+        $coupon = new Coupon;
+        $coupon->campain_id = $request->campain_id;
+        $coupon->name = $request->name;
+        $coupon->discount = $request->discount;
+        $coupon->locations = json_encode($request->locations);
+        $coupon->expire_date = $request->expire_date;
+        $coupon->count = $request->count;
+        $coupon->price = 0.01;
+        if($coupon->save()){
+            return $this->success('Coupon added Successfully.');
         }
-        $update->title = $request->title;
-        $update->target_url = $request->target_url;
-        $update->target_views = $request->target_views;
-        $update->price = $request->price;
-        $update->offer_type = $request->offer_type;
-        $update->offer = $request->offer;
-        //$update->video_manifest = $request->video_manifest;
-        $update->status = true;
-        if(!$update->update()){
-            return $this->failure('Something went wrong, Please try again later.');
-        }
-        if(!empty($request->categories)){
-            $update->categories()->detach();
-            $update->categories()->sync((array)$request->categories);
-        }
-        if(!empty($request->countries)){
-            $update->countries()->detach();
-            $update->countries()->sync((array)$request->countries);
-        }
-        return $this->success('Reel Updated Successfully.');
-    }
-
-    // protected function reelsVideoUpdate(Request $request, $id) {
-    //     $update = Reel::where('user_id', Auth::id())->find($id);
-    //     if(empty($update)){
-    //         return $this->failure('Reel Not Found.');
-    //     }
-    //     $update->video_manifest = $request->video_manifest;
-    //     if(!$update->update()){
-    //         return $this->failure('Something went wrong, Please try again later.');
-    //     }
-    //     return $this->success('Video Updated Successfully.');
-    // }
-
-    protected function reelsViewsUpdate(Request $request, $id) {
-        $reel = Reel::find($id);
-        if(empty($reel)){
-            return $this->failure('Reel Not Found.');
-        }
-        $reelV = new ReelView;
-        $reelV->user_id = Auth::id();
-        $reelV->reel_id = $reel->id;
-        $reelV->save();
-        return $this->success('View Updated Successfully.');
-    }
-
-    protected function reelsClicksUpdate(Request $request, $id) {
-        $reel = Reel::find($id);
-        if(empty($reel)){
-            return $this->failure('Reel Not Found.');
-        }
-        $reel->increment('clicks');
-        return $this->success('Reel clicks Updated Successfully.', [
-            'target_url' => $reel->target_url
-        ]);
-    }
-
-    // protected function reelsLikesUpdate(Request $request, $id) {
-    //     $reel = Reel::find($id);
-    //     if(empty($reel)){
-    //         return $this->failure('Reel Not Found.');
-    //     }
-    //     $reelL = new ReelLike;
-    //     $reelL->user_id = Auth::id();
-    //     $reelL->reel_id = $reel->id;
-    //     $reelL->save();
-    //     return $this->success('Likes Updated Successfully.');
-    // }
-
-    protected function reelsLikesUpdate(Request $request, $id) {
-        $reel = Reel::find($id);
-        if(empty($reel)){
-            return $this->failure('Reel Not Found.');
-        }
-        $reelAction = ReelLike::firstOrNew(['reel_id' => $id, 'user_id' => Auth::id()]);
-        if(!$reelAction->exists){
-            $reelAction->save();
-            $action = 'Like';
-        }else{
-            $reelAction->delete();
-            $action = 'Unlike';
-        }
-        return $this->success($action . ' Done Successfully.');
-    }
-
-    protected function reelsHeartsUpdate(Request $request, $id) {
-        $reel = Reel::find($id);
-        if(empty($reel)){
-            return $this->failure('Reel Not Found.');
-        }
-        $reelAction = ReelHeart::firstOrNew(['reel_id' => $id, 'user_id' => Auth::id()]);
-        if(!$reelAction->exists){
-            $reelAction->save();
-            $action = 'Heart';
-        }else{
-            $reelAction->delete();
-            $action = 'UnHeart';
-        }
-        return $this->success($action . ' Done Successfully.');
-    }
-
-    protected function reelsCommentsList(Request $request, $reelId) {
-        $reel = Reel::find($reelId);
-        if(empty($reel)){
-            return $this->failure('Reel Not Found.');
-        }
-        $comments = ReelComment::where('reel_id', $reel->id)->paginate(10);
-        return ReelsComments::collection($comments);
-    }
-
-    protected function reelsCommentsDelete(Request $request, $reelId, $id) {
-        $del = ReelComment::where(['reel_id' => $reelId, 'id' => $id])->delete();
-        if(!$del){
-            return $this->failure('Comment is Not Exists.');
-        }
-        return $this->success('Comment Deleted Successfully.');
-    }
-
-    protected function reelsCommentsAdd(Request $request, $reelId) {
-        $validator = Validator::make($request->all(),  [
-            'comment' => 'required|max:250',
-        ]);
-        if($validator->fails()){
-            return $this->failure('Comment field is missing.');
-        }
-        $reel = Reel::find($reelId);
-        if(empty($reel)){
-            return $this->failure('Reel Not Found.');
-        }
-        $user_id = Auth::id();
-        $new = new ReelComment;
-        $new->user_id = $user_id;
-        $new->reel_id = $reel->id;
-        $new->comment = $request->comment;
-        $new->save();
-        return $this->success('Comment Added Successfully.');
-    }
-
-    protected function reelsWishlistUpdate(Request $request, $id){
-        $reel = Reel::find($id);
-        if(empty($reel)){
-            return $this->failure('Reel Not Found.');
-        }
-        $wishlist = Wishlist::where('id', $id)->where('user_id', Auth::user()->id)->first();
-        if(!empty($wishlist)){
-            $wishlist->delete();
-            return $this->failure('Reel Removed from Wishlist.');
-        }
-        $wishlist = new Wishlist();
-        $wishlist->user_id = Auth::id();
-        $wishlist->reel_id = $id;
-        $wishlist->save();
-        return $this->success('Reel Added Successfully in Wishlist.');
-    }
-
-    protected function reelsDelete(Request $request, $id) {
-        $user_id = Auth::id();
-        $reel = Reel::where('user_id', $user_id)->find($id);
-        if(empty($reel)){
-            return $this->failure('Reel Not Found.');
-        }
-        $reelHls = $reel->video_manifest;
-        $reel->delete();
-        Storage::deleteDirectory($reelHls);
-        return $this->success('Reel Deleted successfully.');
+        return $this->failure('Somethig went wrong, please try again later.');
     }
 }

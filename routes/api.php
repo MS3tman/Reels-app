@@ -3,17 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\UsersController;
-use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Reel\ReelsController;
-use App\Http\Controllers\Reel\CountryController;
-use App\Http\Controllers\Reel\CategoryController;
-use App\Http\Controllers\Reel\DownloadController;
-use App\Http\Controllers\Reel\ReelChunkController;
-use App\Http\Controllers\Admin\CountriesController;
-use App\Http\Controllers\Admin\CategoriesController;
-use App\Http\Controllers\API\V1\Auth\AuthController as AuthAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,29 +39,28 @@ Route::prefix('auth')->middleware('guest:sanctum')->group( function(){
 Route::middleware('auth:sanctum')->group(function(){
 
     Route::post('logout', [LoginController::class, 'logout']);
-    Route::get('profile', [UsersController::class, 'profile']);
-    Route::post('profile', [UsersController::class, 'profilePost']);
-    Route::get('download-video', [DownloadController::class, 'allVideo']);
 
     Route::group(['prefix'=>'reel'], function(){
-        Route::post('create/chunk', [ReelChunkController::class, 'uploadChunks']);
-        Route::get('list', [ReelsController::class, 'reelsList']);
-        Route::get('{id}', [ReelsController::class, 'reelsById']);
-        Route::get('user/list', [ReelsController::class, 'reelsListForUser']);
-        Route::get('user/{id}', [ReelsController::class, 'reelsByIdForUser']);
-        Route::post('store', [ReelsController::class, 'reelsStore']);
-        Route::put('update/{id}', [ReelsController::class, 'reelsUpdate']);
-        Route::put('update/video/{id}', [ReelsController::class, 'reelsVideoUpdate']);
+        Route::post('create/chunk', [ReelsController::class, 'uploadChunks']);
+        
         Route::put('target-page/{id}', [ReelsController::class, 'reelsClicksUpdate']);
         Route::put('update/views/{id}', [ReelsController::class, 'reelsViewsUpdate']);
         Route::put('update/likes/{id}', [ReelsController::class, 'reelsLikesUpdate']);
         Route::put('update/hearts/{id}', [ReelsController::class, 'reelsHeartsUpdate']);
+        
         Route::post('comments/{reelId}', [ReelsController::class, 'reelsCommentsList']);
         Route::post('comments/{reelId}/add', [ReelsController::class, 'reelsCommentsAdd']);
         Route::delete('comments/{reelId}/delete/{id}', [ReelsController::class, 'reelsCommentsDelete']);
-        Route::delete('delete/{id}', [ReelsController::class, 'reelsDelete']);
         Route::put('update/wishlist/{id}', [ReelsController::class, 'reelsWishlistUpdate']);
-
+        
+        // Route::get('user/list', [ReelsController::class, 'reelsListForUser']);
+        // Route::get('user/{id}', [ReelsController::class, 'reelsByIdForUser']);
+        // Route::get('{id}', [ReelsController::class, 'reelsById']);
+        // Route::get('list', [ReelsController::class, 'reelsList']);
+        // Route::put('update/{id}', [ReelsController::class, 'reelsUpdate']);
+        // Route::delete('delete/{id}', [ReelsController::class, 'reelsDelete']);
+        Route::post('', [ReelsController::class, 'ReelAddNew']);
+        Route::post('coupon', [ReelsController::class, 'ReelAddNewCoupon']);
     });
 
 

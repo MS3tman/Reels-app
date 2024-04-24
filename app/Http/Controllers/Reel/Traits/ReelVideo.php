@@ -1,18 +1,13 @@
 <?php
-
-namespace App\Http\Controllers\Reel;
-
-use App\Http\Controllers\Controller;
+namespace App\Http\Controllers\Reel\Traits;
 use App\Models\Reel;
 use App\Services\HLSService;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
+trait ReelVideo{
 
-class ReelChunkController extends Controller
-{
     public function uploadChunks(Request $request){
         $validator = Validator::make($request->all(), [
             'reel_id'=>'required',
@@ -116,5 +111,4 @@ class ReelChunkController extends Controller
         }
         rmdir($directory);
     }
-
 }
