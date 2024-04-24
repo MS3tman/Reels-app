@@ -49,4 +49,9 @@ class Reel extends Model
     {
         return $this->hasMany(Wishlist::class);
     }
+
+    public function copoun()
+    {
+        return $this->hasMany(ReelCopoun::class);
+    }
 }
