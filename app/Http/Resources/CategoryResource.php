@@ -18,7 +18,7 @@ class CategoryResource extends JsonResource
         //return parent::toArray($request);
         return [
             'id'=>$this->id,
-            'category_title'=>$this->category_title,
+            'name'=>$this->name,
             'image'=>(new FileHandle())->retrieveFile($this->image, 'category')
         ];
     }

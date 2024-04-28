@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reels_clicks', function (Blueprint $table) {
+        Schema::create('campain_hearts', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('reel_id');
+            $table->unsignedBigInteger('campain_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('reel_id')->references('id')->on('reels')->onDelete('cascade');
-            $table->timestamps();
+            $table->foreign('campain_id')->references('id')->on('campains')->onDelete('cascade');
         });
     }
 
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('reels_clicks');
+        Schema::dropIfExists('campain_hearts');
     }
 };

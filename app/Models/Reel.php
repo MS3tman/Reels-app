@@ -15,21 +15,6 @@ class Reel extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function views()
-    {
-        return $this->hasMany(ReelView::class);
-    }
-
-    public function likes()
-    {
-        return $this->hasMany(ReelLike::class);
-    }
-
-    public function hearts()
-    {
-        return $this->hasMany(ReelHeart::class);
-    }
-
     public function comments()
     {
         return $this->hasMany(ReelComment::class);
@@ -50,8 +35,8 @@ class Reel extends Model
         return $this->hasMany(Wishlist::class);
     }
 
-    public function copoun()
+    public function campains()
     {
-        return $this->hasMany(ReelCopoun::class);
+        return $this->hasMany(Campain::class);
     }
 }

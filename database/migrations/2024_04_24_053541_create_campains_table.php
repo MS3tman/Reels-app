@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //reel_id-code_num-offer-target_views-price-expire_date-status
+        //reel_id-copoun_code-offer-target_views-price-expire_date-status
         Schema::create('campains', function (Blueprint $table) {
             $table->id();
             $table->foreignId('reel_id');
-            $table->string('code_num')->nullable();
-            $table->unsignedInteger('per_num')->nullable()->default(0);
+            $table->string('copoun_code')->nullable();
+            $table->unsignedInteger('copoun_per')->nullable()->default(0);
             $table->unsignedInteger('target_views')->nullable()->default(0);
             $table->unsignedFloat('price')->nullable()->default(0);
             $table->date('expire_date')->nullable();

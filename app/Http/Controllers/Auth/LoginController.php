@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Carbon\Carbon;
 use App\Models\User;
+use App\Mail\UserRegister;
 use Illuminate\Support\Str;
 use App\Services\FileHandle;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Mail\UserRegister;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -55,7 +56,8 @@ class LoginController extends Controller
         $new                    = new User;
         $new->full_name         = $request->full_name;
         $new->email             = $request->email;
-        $new->bdate             = $request->bdate;
+        $bdate                  = Carbon::parse($request->bdate);
+        $new->bdate             = $bdate->format('Y-m-d');
         $new->gender             = $request->gender;
         $new->country_code      = $request->country_code;
         $new->phone_number      = $request->phone_number;

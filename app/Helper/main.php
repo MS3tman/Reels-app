@@ -19,3 +19,20 @@ function generateRandomCoupon($length = 7) {
     // $couponCode = generateRandomCoupon();
     // echo $couponCode;
 }
+
+function view_price(){
+    return 0.1;
+}
+
+function coupon_price(){
+    return 0.1;
+}
+
+function reel_status($num, $need='text'){
+    return match($num){
+        null | 0 => ($need=='text') ? 'Processing' : '#666666',
+        1 => ($need=='text') ? 'Played' : '#53B175',
+        2 => ($need=='text') ? 'Paused' : '#CDB229',
+        3 => ($need=='text') ? 'Finished' : '#D72120',
+    };
+}

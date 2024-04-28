@@ -43,24 +43,29 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::group(['prefix'=>'reel'], function(){
         Route::post('create/chunk', [ReelsController::class, 'uploadChunks']);
         
-        Route::put('target-page/{id}', [ReelsController::class, 'reelsClicksUpdate']);
-        Route::put('update/views/{id}', [ReelsController::class, 'reelsViewsUpdate']);
-        Route::put('update/likes/{id}', [ReelsController::class, 'reelsLikesUpdate']);
-        Route::put('update/hearts/{id}', [ReelsController::class, 'reelsHeartsUpdate']);
         
         Route::post('comments/{reelId}', [ReelsController::class, 'reelsCommentsList']);
         Route::post('comments/{reelId}/add', [ReelsController::class, 'reelsCommentsAdd']);
         Route::delete('comments/{reelId}/delete/{id}', [ReelsController::class, 'reelsCommentsDelete']);
         Route::put('update/wishlist/{id}', [ReelsController::class, 'reelsWishlistUpdate']);
         
+        // Route::put('target-page/{id}', [ReelsController::class, 'reelsClicksUpdate']);
+        // Route::put('update/views/{id}', [ReelsController::class, 'reelsViewsUpdate']);
+        // Route::put('update/likes/{id}', [ReelsController::class, 'reelsLikesUpdate']);
+        // Route::put('update/hearts/{id}', [ReelsController::class, 'reelsHeartsUpdate']);
+
         // Route::get('user/list', [ReelsController::class, 'reelsListForUser']);
         // Route::get('user/{id}', [ReelsController::class, 'reelsByIdForUser']);
         // Route::get('{id}', [ReelsController::class, 'reelsById']);
         // Route::get('list', [ReelsController::class, 'reelsList']);
         // Route::put('update/{id}', [ReelsController::class, 'reelsUpdate']);
         // Route::delete('delete/{id}', [ReelsController::class, 'reelsDelete']);
+        Route::get('list', [ReelsController::class, 'reelList']);
         Route::post('', [ReelsController::class, 'ReelAddNew']);
         Route::post('coupon', [ReelsController::class, 'ReelAddNewCoupon']);
+        Route::post('views', [ReelsController::class, 'CampainAddViews']);
+        Route::post('heart', [ReelsController::class, 'CampainToggleHeart']);
+        Route::post('like', [ReelsController::class, 'CampainToggleLike']);
     });
 
 

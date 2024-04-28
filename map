@@ -1,7 +1,7 @@
 Settings: view_price_type(amount/%) - view_price_amount - coupon_price_type(amount/%) - coupon_price_amount
 
 Reels: id-title-company_name-logo-target_url-btn_name-user_id
-Campains: reel_id-code_num-offer-target_views-price-expire_date-status
+Campains: reel_id-copoun_code-copoun_per-target_views-price-expire_date-status
 Coupons: campain_id-name-discount-locations-expire_date-count-price
 Coupon codes: coupon_id-code-user_id
 
@@ -9,3 +9,9 @@ Coupon codes: coupon_id-code-user_id
 
 Commands:
 - Delete users that not verified  their users
+
+
+$table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('reel_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('reel_id')->references('id')->on('reels')->onDelete('cascade');

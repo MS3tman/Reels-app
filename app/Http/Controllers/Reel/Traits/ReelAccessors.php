@@ -1,83 +1,83 @@
 <?php
 namespace App\Http\Controllers\Reel\Traits;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
+
+use App\Models\CampainLike;
+use App\Models\CampainHeart;
+use App\Models\CampainViews;
 use Illuminate\Http\Request;
-use App\Models\Reel;
-use App\Models\ReelLike;
-use App\Models\ReelView;
-use App\Models\ReelHeart;
-use App\Models\Wishlist;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+
 trait ReelAccessors{
 
-    protected function reelsViewsUpdate(Request $request, $id) {
-        $reel = Reel::find($id);
-        if(empty($reel)){
-            return $this->failure('Reel Not Found.');
-        }
-        $reelV = new ReelView;
-        $reelV->user_id = Auth::id();
-        $reelV->reel_id = $reel->id;
-        $reelV->save();
-        return $this->success('View Updated Successfully.');
-    }
-
-    protected function reelsClicksUpdate(Request $request, $id) {
-        $reel = Reel::find($id);
-        if(empty($reel)){
-            return $this->failure('Reel Not Found.');
-        }
-        $reel->increment('clicks');
-        return $this->success('Reel clicks Updated Successfully.', [
-            'target_url' => $reel->target_url
+    public function CampainAddViews(Request $request) {
+        $validator = Validator::make($request->all(),  [
+            'campain_id' => 'required|exists:campains,id',
         ]);
-    }    protected function reelsLikesUpdate(Request $request, $id) {
-        $reel = Reel::find($id);
-        if(empty($reel)){
-            return $this->failure('Reel Not Found.');
+        if($validator->fails()){
+            return $this->failure('Campain ID is missing.');
         }
-        $reelAction = ReelLike::firstOrNew(['reel_id' => $id, 'user_id' => Auth::id()]);
-        if(!$reelAction->exists){
-            $reelAction->save();
-            $action = 'Like';
+        $add = CampainViews::where(['campain_id' => $request->campain_id, 'user_id' => Auth::id()])->first();
+        if(!empty($add)){
+            $add->increment('count');
+            $add->update();
         }else{
-            $reelAction->delete();
-            $action = 'Unlike';
+            $add = new CampainViews;
+            $add->campain_id = $request->campain_id;
+            $add->user_id = Auth::id();
+            $add->count = 1;
+            $add->save();
         }
-        return $this->success($action . ' Done Successfully.');
+        $campain_views = CampainViews::where('campain_id', $request->campain_id)->sum('count');
+        return $this->success('View Added Successfully.', [
+            'campain_views' => $campain_views
+        ]);
     }
 
-    protected function reelsHeartsUpdate(Request $request, $id) {
-        $reel = Reel::find($id);
-        if(empty($reel)){
-            return $this->failure('Reel Not Found.');
+    public function CampainToggleHeart(Request $request) {
+        $validator = Validator::make($request->all(),  [
+            'campain_id' => 'required|exists:campains,id',
+        ]);
+        if($validator->fails()){
+            return $this->failure('Campain ID is missing.');
         }
-        $reelAction = ReelHeart::firstOrNew(['reel_id' => $id, 'user_id' => Auth::id()]);
-        if(!$reelAction->exists){
-            $reelAction->save();
-            $action = 'Heart';
+        $add = CampainHeart::where(['campain_id' => $request->campain_id, 'user_id' => Auth::id()])->first();
+        if(!empty($add)){
+            $add->delete();
         }else{
-            $reelAction->delete();
-            $action = 'UnHeart';
+            $add = new CampainHeart;
+            $add->campain_id = $request->campain_id;
+            $add->user_id = Auth::id();
+            $add->save();
         }
-        return $this->success($action . ' Done Successfully.');
-    }
+        $hearts_count = CampainHeart::where('campain_id', $request->campain_id)->count();
+        return $this->success('Heart Toggled Successfully.', [
+            'hearts_count' => $hearts_count
+        ]);
 
-    protected function reelsWishlistUpdate(Request $request, $id){
-        $reel = Reel::find($id);
-        if(empty($reel)){
-            return $this->failure('Reel Not Found.');
+    }
+    
+    public function CampainToggleLike(Request $request) {
+        $validator = Validator::make($request->all(),  [
+            'campain_id' => 'required|exists:campains,id',
+        ]);
+        if($validator->fails()){
+            return $this->failure('Campain ID is missing.');
         }
-        $wishlist = Wishlist::where('id', $id)->where('user_id', Auth::user()->id)->first();
-        if(!empty($wishlist)){
-            $wishlist->delete();
-            return $this->failure('Reel Removed from Wishlist.');
+        $add = CampainHeart::where(['campain_id' => $request->campain_id, 'user_id' => Auth::id()])->first();
+        if(!empty($add)){
+            $add->delete();
+        }else{
+            $add = new CampainLike;
+            $add->campain_id = $request->campain_id;
+            $add->user_id = Auth::id();
+            $add->save();
         }
-        $wishlist = new Wishlist();
-        $wishlist->user_id = Auth::id();
-        $wishlist->reel_id = $id;
-        $wishlist->save();
-        return $this->success('Reel Added Successfully in Wishlist.');
+        $likes_count = CampainLike::where('campain_id', $request->campain_id)->count();
+        return $this->success('Like Toggled Successfully.', [
+            'likes_count' => $likes_count
+        ]);
+
     }
     
 }

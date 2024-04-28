@@ -11,19 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::dropIfExists('reel_countries');
-        Schema::create('country_reel', function (Blueprint $table) {
-            $table->primary(['reel_id', 'country_id']);
+        Schema::create('category_reel', function (Blueprint $table) {
+            $table->primary(['reel_id', 'category_id']);
             $table->foreignId('reel_id')->index();
-            $table->foreignId('country_id')->index();
+            $table->foreignId('category_id')->index();
 
             $table->foreign('reel_id')
                   ->references('id')
-                  ->on('reels');
+                  ->on('reels')
+                  ->onDelete('cascade');
 
-            $table->foreign('country_id')
+            $table->foreign('category_id')
                 ->references('id')
-                ->on('countries');
+                ->on('categories')
+                ->onDelete('cascade');
         });
     }
 
@@ -32,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('country_reel');
+        Schema::dropIfExists('category_reel');
     }
 };

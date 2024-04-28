@@ -16,13 +16,11 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string('title');
+            $table->string('company_name')->nullable();
+            $table->string('logo')->nullable();
+            $table->string('btn_name')->nullable();
             $table->string('target_url')->nullable();
-            $table->unsignedBigInteger('target_views')->nullable()->default(0);
-            $table->float('price')->nullable()->default(0);
-            $table->string('offer_type')->nullable();
-            $table->string('offer')->nullable();
             $table->string('video_manifest')->nullable();
-            $table->boolean('status')->nullable()->default(false); // 
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });

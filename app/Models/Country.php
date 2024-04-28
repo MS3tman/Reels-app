@@ -10,7 +10,7 @@ class Country extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name_en',
+        'name',
         'dial_code',
         'phone_number',
         'iso_code',

@@ -14,7 +14,7 @@ class CountriesController extends Controller
 {
     public function create(Request $request){
         $validator = Validator::make($request->all(), [
-            'name_en'=>'required',
+            'name'=>'required',
             'dial_code'=>'required',
             'phone_length'=>'required',
             'iso_code'=>'required',
@@ -23,7 +23,7 @@ class CountriesController extends Controller
             return $this->failure($validator->errors());
         }
         $newCountry = new Country();
-        $newCountry->name_en = $request->name_en;
+        $newCountry->name = $request->name;
         $newCountry->dial_code = $request->dial_code;
         $newCountry->phone_length = $request->phone_length;
         $newCountry->iso_code = $request->iso_code;

@@ -16,14 +16,14 @@ class CategoriesController extends Controller
 {
     public function create(Request $request){
         $validator = Validator::make($request->all(), [
-            'category_title'=>'required|unique:categories',
+            'name'=>'required|unique:categories',
             'image'=>'required'
         ]);
         if($validator->fails()){
             return $this->failure($validator->errors());
         }
         $newCategory = new Category();
-        $newCategory->category_title = $request->category_title;
+        $newCategory->name = $request->name;
         $imagePath = (new FileHandle())->storeImage($request->image, 'category');
         $newCategory->image = $imagePath;
         $newCategory->save();
@@ -41,7 +41,7 @@ class CategoriesController extends Controller
             $image = (new FileHandle())->retrieveFile($category->image, 'category');
             $data[] = [
                 'id' => $category->id,
-                'category_title'=>$category->category_title, 
+                'name'=>$category->name, 
                 'image'=>$image
             ];
         }
