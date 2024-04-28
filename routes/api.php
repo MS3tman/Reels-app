@@ -1,5 +1,6 @@
 <?php
 
+use Pusher\Pusher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -20,6 +21,17 @@ use App\Http\Controllers\Reel\ReelsController;
 Route::pattern('token', '[a-zA-Z0-9]{60}');
 //Route::pattern('id', '[0-9]');
 
+
+Route::get('pusher', function () {
+    return view('welcome');
+});
+
+Route::get('/trigger-alert', function (Request $r) {
+    if($r->filled('msg')){
+        pusher(['message' => $r->msg]);
+    }
+    return view('send');
+});
 
 Route::get('country/all', [HomeController::class, 'CountriesList']);
 Route::get('category/all', [HomeController::class, 'CategoriesList']);
@@ -49,23 +61,17 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::delete('comments/{reelId}/delete/{id}', [ReelsController::class, 'reelsCommentsDelete']);
         Route::put('update/wishlist/{id}', [ReelsController::class, 'reelsWishlistUpdate']);
         
-        // Route::put('target-page/{id}', [ReelsController::class, 'reelsClicksUpdate']);
-        // Route::put('update/views/{id}', [ReelsController::class, 'reelsViewsUpdate']);
-        // Route::put('update/likes/{id}', [ReelsController::class, 'reelsLikesUpdate']);
-        // Route::put('update/hearts/{id}', [ReelsController::class, 'reelsHeartsUpdate']);
 
-        // Route::get('user/list', [ReelsController::class, 'reelsListForUser']);
-        // Route::get('user/{id}', [ReelsController::class, 'reelsByIdForUser']);
-        // Route::get('{id}', [ReelsController::class, 'reelsById']);
-        // Route::get('list', [ReelsController::class, 'reelsList']);
-        // Route::put('update/{id}', [ReelsController::class, 'reelsUpdate']);
-        // Route::delete('delete/{id}', [ReelsController::class, 'reelsDelete']);
         Route::get('list', [ReelsController::class, 'reelList']);
         Route::post('', [ReelsController::class, 'ReelAddNew']);
-        Route::post('coupon', [ReelsController::class, 'ReelAddNewCoupon']);
+        Route::put('{id}', [ReelsController::class, 'ReelUpdateStatus']);
         Route::post('views', [ReelsController::class, 'CampainAddViews']);
-        Route::post('heart', [ReelsController::class, 'CampainToggleHeart']);
+        Route::post('love', [ReelsController::class, 'CampainToggleHeart']);
         Route::post('like', [ReelsController::class, 'CampainToggleLike']);
+        Route::get('{reelId}/comments', [ReelsController::class, 'reelsCommentsList']);
+        Route::post('{reelId}/comments', [ReelsController::class, 'reelsCommentsAdd']);
+        Route::delete('{reelId}/comments/{id}', [ReelsController::class, 'reelsCommentsDelete']);
+        Route::post('{reelId}/comment/love/{id}', [ReelsController::class, 'CommentToggleHeart']);
     });
 
 

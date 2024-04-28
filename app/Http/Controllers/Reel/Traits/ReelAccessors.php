@@ -52,7 +52,7 @@ trait ReelAccessors{
         }
         $hearts_count = CampainHeart::where('campain_id', $request->campain_id)->count();
         return $this->success('Heart Toggled Successfully.', [
-            'hearts_count' => $hearts_count
+            'love_count' => $hearts_count
         ]);
 
     }
@@ -64,7 +64,7 @@ trait ReelAccessors{
         if($validator->fails()){
             return $this->failure('Campain ID is missing.');
         }
-        $add = CampainHeart::where(['campain_id' => $request->campain_id, 'user_id' => Auth::id()])->first();
+        $add = CampainLike::where(['campain_id' => $request->campain_id, 'user_id' => Auth::id()])->first();
         if(!empty($add)){
             $add->delete();
         }else{

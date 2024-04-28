@@ -1,5 +1,7 @@
 <?php
 
+use Pusher\Pusher;
+
 function generateRandomCoupon($length = 7) {
     $characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $coupon = '';
@@ -35,4 +37,13 @@ function reel_status($num, $need='text'){
         2 => ($need=='text') ? 'Paused' : '#CDB229',
         3 => ($need=='text') ? 'Finished' : '#D72120',
     };
+}
+
+function pusher($body, $event='my-event', $channel='my-channel'){
+    $pusher = new Pusher(env('PUSHER_APP_KEY'), env('PUSHER_APP_SECRET'), env('PUSHER_APP_ID'), [
+        'cluster' => env('PUSHER_APP_CLUSTER'),
+        'encrypted' => true
+    ]);
+
+    $pusher->trigger($channel, $event, $body);
 }

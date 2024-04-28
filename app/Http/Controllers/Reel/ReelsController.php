@@ -37,7 +37,13 @@ class ReelsController extends Controller
             'copoun_code' => 'nullable|string',
             'expire_date' => 'required|date',
             'categories'=>'nullable|array',
-            'countries'=>'nullable|array'
+            'countries'=>'nullable|array',
+
+            'coupon_name'=>'nullable|string',
+            'coupon_discount'=>'required_if:coupon_name|integer',
+            'coupon_locations'=>'required_if:coupon_name|array',
+            'coupon_expire_date'=>'required_if:coupon_name|date',
+            'coupon_count'=>'required_if:coupon_name|integer',
         ]);
         if($validator->fails()){
             return $this->failure('Required fields is missing.', $validator->errors());
@@ -54,6 +60,9 @@ class ReelsController extends Controller
             $new->target_url = $request->target_url;
             $new->save();
     
+            $new->categories()->sync((array)$request->categories);
+            $new->countries()->sync((array)$request->countries);
+    
             $campain = new Campain;
             $campain->reel_id = $new->id;
             $campain->target_views = $request->target_views;
@@ -64,9 +73,19 @@ class ReelsController extends Controller
             $campain->expire_date = $expire_date->format('Y-m-d');
             $campain->status = 0;
             $campain->save();
-    
-            $new->categories()->sync((array)$request->categories);
-            $new->countries()->sync((array)$request->countries);
+
+            if($request->filled('coupon_name')){
+                $coupon = new Coupon;
+                $coupon->campain_id = $campain->id;
+                $coupon->name = $request->coupon_name;
+                $coupon->discount = $request->coupon_discount;
+                $coupon->locations = json_encode($request->coupon_locations);
+                $coupon_expire_date = Carbon::parse($request->coupon_expire_date);
+                $coupon->expire_date = $coupon_expire_date->format('Y-m-d');
+                $coupon->count = $request->coupon_count;
+                $coupon->price = coupon_price();
+                $coupon->save();
+            }
     
             DB::commit();
         }catch(QueryException $e){
@@ -76,58 +95,21 @@ class ReelsController extends Controller
         return $this->success('Reel added Successfully.');
     }
 
-    public function ReelAddNewCampain(Request $request) 
+    public function ReelUpdateStatus(Request $request, $id)
     {
         $validator = Validator::make($request->all(),  [
-            'reel_id' => 'required|integer',
-            'target_views' => 'required|integer',
-            'expire_date' => 'required|date',
-            'copoun_per' => 'nullable|integer',
-            'copoun_code' => 'nullable|string',
+            'status' => 'required|integer',
         ]);
         if($validator->fails()){
-            return $this->failure('Required fields is missing.', $validator->errors());
+            return $this->failure('Status field is missing.');
         }
-
-        $
-
-        $campain = new Campain;
-        $campain->reel_id = $request->reel_id;
-        $campain->target_views = $request->target_views;
-        $campain->price = view_price();
-        $campain->copoun_per = $request->copoun_per;
-        $campain->copoun_code = $request->copoun_code;
-        $expire_date = Carbon::parse($request->expire_date);
-        $campain->expire_date = $expire_date->format('Y-m-d');
-        $campain->status = 0;
-        $campain->save();
+        $campain = Campain::find($id);
+        if(empty($campain)){
+            return $this->failure('Campain Not Found.');
+        }
+        $campain->status = (int)$request->status;
+        $campain->update();
+        return $this->success('Campain updated Successfully.');
     }
-
-    public function ReelAddNewCoupon(Request $request) 
-    {
-        $validator = Validator::make($request->all(),  [
-            'campain_id' => 'required|exists:campains,id',
-            'name' => 'required|string',
-            'discount' => 'required|numeric',
-            'locations' => 'required|array',
-            'expire_date' => 'required|date',
-            'count' => 'required|integer',
-        ]);
-        if($validator->fails()){
-            return $this->failure('Required fields is missing.', $validator->errors());
-        }
-        //campain_id-name-discount-locations-expire_date-count-price
-        $coupon = new Coupon;
-        $coupon->campain_id = $request->campain_id;
-        $coupon->name = $request->name;
-        $coupon->discount = $request->discount;
-        $coupon->locations = json_encode($request->locations);
-        $coupon->expire_date = $request->expire_date;
-        $coupon->count = $request->count;
-        $coupon->price = coupon_price();
-        if($coupon->save()){
-            return $this->success('Coupon added Successfully.');
-        }
-        return $this->failure('Somethig went wrong, please try again later.');
-    }
+    
 }
