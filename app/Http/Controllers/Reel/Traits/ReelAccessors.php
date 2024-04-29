@@ -1,6 +1,9 @@
 <?php
 namespace App\Http\Controllers\Reel\Traits;
 
+use App\Events\Heart;
+use App\Events\Like;
+use App\Events\View;
 use App\Models\CampainLike;
 use App\Models\CampainHeart;
 use App\Models\CampainViews;
@@ -29,6 +32,7 @@ trait ReelAccessors{
             $add->save();
         }
         $campain_views = CampainViews::where('campain_id', $request->campain_id)->sum('count');
+        broadcast(new View($campain_views));
         return $this->success('View Added Successfully.', [
             'campain_views' => $campain_views
         ]);
@@ -51,6 +55,7 @@ trait ReelAccessors{
             $add->save();
         }
         $hearts_count = CampainHeart::where('campain_id', $request->campain_id)->count();
+        broadcast(new Heart($hearts_count));
         return $this->success('Heart Toggled Successfully.', [
             'love_count' => $hearts_count
         ]);
@@ -74,6 +79,7 @@ trait ReelAccessors{
             $add->save();
         }
         $likes_count = CampainLike::where('campain_id', $request->campain_id)->count();
+        broadcast(new Like($likes_count));
         return $this->success('Like Toggled Successfully.', [
             'likes_count' => $likes_count
         ]);
