@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class ReelsResource extends JsonResource
 {
@@ -27,7 +28,8 @@ class ReelsResource extends JsonResource
             "price" => view_price(), 
             "copoun_code" => $this->copoun_code, 
             "copoun_per" => $this->copoun_per, 
-            "video_manifest" => $this->reel->video_manifest, 
+            //"video_manifest" => $this->reel->video_manifest, 
+            "video_manifest" => url(Storage::url("app/{$this->reel->video_manifest}/master.m3u8")),
             "status" => reel_status($this->status), 
             "status_color" => reel_status($this->status, 'color'), 
             "created_at" => $this->created_at, 

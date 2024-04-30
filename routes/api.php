@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\AnalysisController;
 use Pusher\Pusher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Reel\ReelsController;
+use App\Http\Controllers\StatisticsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,7 +76,24 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::post('{reelId}/comment/love/{id}', [ReelsController::class, 'CommentToggleHeart']);
     });
 
+    Route::group(['prefix'=>'statistics'], function(){
+        Route::get('info', [StatisticsController::class, 'info']);
+        Route::get('reel', [StatisticsController::class, 'reel']);
+    });
 
+    Route::group(['prefix'=>'analysis'], function(){
+        Route::get('info/{id}', [AnalysisController::class, 'info']);
+        Route::post('renew', [AnalysisController::class, 'newCampain']);
+        Route::get('view-chart/{id}', [AnalysisController::class, 'viewChart']);
+        Route::put('view-status/{id}', [AnalysisController::class, 'viewStatus']);
+        Route::get('coupon-chart/{id}', [AnalysisController::class, 'couponChart']);
+        Route::get('coupon-list/{id}', [AnalysisController::class, 'couponList']);
+        Route::get('reel-countries-analysis', [AnalysisController::class, 'reelCountriesAnalysis']);
+    });
+
+    Route::group(['prefix'=>'settings'], function(){
+
+    });
 
     
     
