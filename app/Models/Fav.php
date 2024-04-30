@@ -5,9 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Wishlist extends Model
+class Fav extends Model
 {
     use HasFactory;
+    protected $table = 'favourites';
 
     protected $fillable = [
         'reel_id',

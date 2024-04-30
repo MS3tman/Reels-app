@@ -59,15 +59,15 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::post('comments/{reelId}', [ReelsController::class, 'reelsCommentsList']);
         Route::post('comments/{reelId}/add', [ReelsController::class, 'reelsCommentsAdd']);
         Route::delete('comments/{reelId}/delete/{id}', [ReelsController::class, 'reelsCommentsDelete']);
-        Route::put('update/wishlist/{id}', [ReelsController::class, 'reelsWishlistUpdate']);
         
 
         Route::get('list', [ReelsController::class, 'reelList']);
         Route::post('', [ReelsController::class, 'ReelAddNew']);
         Route::put('{id}', [ReelsController::class, 'ReelUpdateStatus']);
         Route::post('views', [ReelsController::class, 'CampainAddViews']);
-        Route::post('love', [ReelsController::class, 'CampainToggleHeart']);
-        Route::post('like', [ReelsController::class, 'CampainToggleLike']);
+        Route::post('love', [ReelsController::class, 'ReeTogglelLove']);
+        Route::post('like', [ReelsController::class, 'ReelToggleLike']);
+        Route::post('favourite', [ReelsController::class, 'ReelToggleFavourite']);
         Route::get('{reelId}/comments', [ReelsController::class, 'reelsCommentsList']);
         Route::post('{reelId}/comments', [ReelsController::class, 'reelsCommentsAdd']);
         Route::delete('{reelId}/comments/{id}', [ReelsController::class, 'reelsCommentsDelete']);

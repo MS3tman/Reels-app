@@ -1,8 +1,9 @@
 <?php
 namespace App\Http\Controllers\Reel\Traits;
 
-use App\Models\CampainLike;
-use App\Models\CampainHeart;
+use App\Models\Fav;
+use App\Models\ReelLike;
+use App\Models\ReelLove;
 use App\Models\CampainViews;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,49 +35,69 @@ trait ReelAccessors{
         ]);
     }
 
-    public function CampainToggleHeart(Request $request) {
+    public function ReeTogglelLove(Request $request) {
         $validator = Validator::make($request->all(),  [
-            'campain_id' => 'required|exists:campains,id',
+            'reel_id' => 'required|exists:reels,id',
         ]);
         if($validator->fails()){
-            return $this->failure('Campain ID is missing.');
+            return $this->failure('Reel ID is missing.');
         }
-        $add = CampainHeart::where(['campain_id' => $request->campain_id, 'user_id' => Auth::id()])->first();
+        $add = ReelLove::where(['reel_id' => $request->reel_id, 'user_id' => Auth::id()])->first();
         if(!empty($add)){
             $add->delete();
         }else{
-            $add = new CampainHeart;
-            $add->campain_id = $request->campain_id;
+            $add = new ReelLove;
+            $add->reel_id = $request->reel_id;
             $add->user_id = Auth::id();
             $add->save();
         }
-        $hearts_count = CampainHeart::where('campain_id', $request->campain_id)->count();
-        return $this->success('Heart Toggled Successfully.', [
+        $hearts_count = ReelLove::where('reel_id', $request->reel_id)->count();
+        return $this->success('Love Toggled Successfully.', [
             'love_count' => $hearts_count
         ]);
 
     }
     
-    public function CampainToggleLike(Request $request) {
+    public function ReelToggleLike(Request $request) {
         $validator = Validator::make($request->all(),  [
-            'campain_id' => 'required|exists:campains,id',
+            'reel_id' => 'required|exists:reels,id',
         ]);
         if($validator->fails()){
-            return $this->failure('Campain ID is missing.');
+            return $this->failure('Reel ID is missing.');
         }
-        $add = CampainLike::where(['campain_id' => $request->campain_id, 'user_id' => Auth::id()])->first();
+        $add = ReelLike::where(['reel_id' => $request->reel_id, 'user_id' => Auth::id()])->first();
         if(!empty($add)){
             $add->delete();
         }else{
-            $add = new CampainLike;
-            $add->campain_id = $request->campain_id;
+            $add = new ReelLike;
+            $add->reel_id = $request->reel_id;
             $add->user_id = Auth::id();
             $add->save();
         }
-        $likes_count = CampainLike::where('campain_id', $request->campain_id)->count();
+        $likes_count = ReelLike::where('reel_id', $request->reel_id)->count();
         return $this->success('Like Toggled Successfully.', [
             'likes_count' => $likes_count
         ]);
+
+    }
+    
+    public function ReelToggleFavourite(Request $request) {
+        $validator = Validator::make($request->all(),  [
+            'reel_id' => 'required|exists:reels,id',
+        ]);
+        if($validator->fails()){
+            return $this->failure('Reel ID is missing.');
+        }
+        $add = Fav::where(['reel_id' => $request->reel_id, 'user_id' => Auth::id()])->first();
+        if(!empty($add)){
+            $add->delete();
+        }else{
+            $add = new Fav;
+            $add->reel_id = $request->reel_id;
+            $add->user_id = Auth::id();
+            $add->save();
+        }
+        return $this->success('Favourite Toggled Successfully.', );
 
     }
     

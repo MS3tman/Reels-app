@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ReelsResource extends JsonResource
@@ -17,6 +18,9 @@ class ReelsResource extends JsonResource
         return [
             "id" => $this->id, 
             "username" => $this->reel->user->full_name, 
+            'has_like' => $this->reel->likedByUser(Auth::id()),
+            'has_love' => $this->reel->loveByUser(Auth::id()),
+            'has_fav' => $this->reel->favByUser(Auth::id()),
             "title" => $this->reel->title, 
             "target_url" => $this->reel->target_url, 
             "target_views" => $this->target_views, 
@@ -30,8 +34,8 @@ class ReelsResource extends JsonResource
             "updated_at" => $this->updated_at, 
             "clicks" => $this->clicks, 
             "views" => $this->views()->sum('count'), 
-            // "comments_count" => $this->comments->count(), 
-            //"comments" => $this->comments, 
+            "comments_count" => $this->reel->comments->count(), 
+            // "comments" => $this->reel->comments, 
             "countries_count" => $this->reel->countries->count(), 
             "countries" => $this->reel->countries->pluck('iso_code'), 
             "categories_count" => $this->reel->categories->count(), 

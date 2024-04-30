@@ -49,13 +49,20 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function wishlist()
+    public function favourites()
     {
-        return $this->hasMany(Wishlist::class);
+        return $this->hasMany(Fav::class);
     }
 
-    public function copounList()
+    public function likedReels()
     {
-        return $this->hasMany(CopounList::class);
+        return $this->belongsToMany(Reel::class);
     }
+
+    public function lovedReels()
+    {
+        return $this->belongsToMany(Reel::class);
+    }
+
+    
 }

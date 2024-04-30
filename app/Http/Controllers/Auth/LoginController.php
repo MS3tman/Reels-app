@@ -41,7 +41,7 @@ class LoginController extends Controller
         //User::truncate();
         $validator = Validator::make($request->all(), [
             'full_name' => 'required',
-            'email' => 'required|email|unique:users',
+            'email' => 'required|email',
             'password' => 'required|min:8',
             'bdate' => 'nullable|date',
             'gender' => 'nullable|in:m,f',
@@ -53,7 +53,18 @@ class LoginController extends Controller
         if($validator->fails()){
             return $this->failure('Some required fileds is missing.', $validator->errors()->all());
         }
-        $new                    = new User;
+        $checkUser = User::where('email', $request->email)->first();
+        if(!empty($checkUser)){
+            if($checkUser->active == true){
+                return $this->failure('The email is already exists.');
+            }else{
+                $new = $checkUser;
+                $do = 'update';
+            }
+        }else{
+            $new                    = new User;
+            $do = 'save';
+        }
         $new->full_name         = $request->full_name;
         $new->email             = $request->email;
         $bdate                  = Carbon::parse($request->bdate);
@@ -71,7 +82,7 @@ class LoginController extends Controller
             $imagePath = (new FileHandle())->storeImage($request->image, 'user');
             $new->image_path = $imagePath;
         }
-        if($new->save()) {
+        if($new->$do()) {
             $new->verify_link = route('verify_register', ['token' => $new->remember_token]);
             $new->retry_link = route('retry_register', ['token' => $new->remember_token]);
             $new->check_code = route('check_code', ['token' => $new->remember_token]);
