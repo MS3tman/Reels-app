@@ -34,7 +34,7 @@ class ReelsResource extends JsonResource
             "status_color" => reel_status($this->status, 'color'), 
             "created_at" => $this->created_at, 
             "updated_at" => $this->updated_at, 
-            "clicks" => $this->clicks, 
+            "clicks" => $this->reel->clicks, 
             "views" => $this->views()->sum('count'), 
             "comments_count" => $this->reel->comments->count(), 
             // "comments" => $this->reel->comments, 

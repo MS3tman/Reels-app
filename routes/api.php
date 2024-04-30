@@ -69,6 +69,7 @@ Route::middleware('auth:sanctum')->group(function(){
         Route::post('views', [ReelsController::class, 'CampainAddViews']);
         Route::post('love', [ReelsController::class, 'ReeTogglelLove']);
         Route::post('like', [ReelsController::class, 'ReelToggleLike']);
+        Route::post('click', [ReelsController::class, 'ReelToggleClick']);
         Route::post('favourite', [ReelsController::class, 'ReelToggleFavourite']);
         Route::get('{reelId}/comments', [ReelsController::class, 'reelsCommentsList']);
         Route::post('{reelId}/comments', [ReelsController::class, 'reelsCommentsAdd']);

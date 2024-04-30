@@ -2,17 +2,35 @@
 namespace App\Http\Controllers\Reel\Traits;
 
 use App\Models\Fav;
-use App\Models\ReelLike;
-use App\Models\ReelLove;
-use App\Events\Heart;
 use App\Events\Like;
 use App\Events\View;
+use App\Models\Reel;
+use App\Events\Heart;
+use App\Models\ReelLike;
+use App\Models\ReelLove;
 use App\Models\CampainViews;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 trait ReelAccessors{
+
+    public function ReelToggleClick(Request $request) {
+        $validator = Validator::make($request->all(),  [
+            'reel_id' => 'required',
+        ]);
+        if($validator->fails()){
+            return $this->failure('Reel ID is missing.');
+        }
+        $reel = Reel::find($request->reel_id);
+        if(empty($reel)){
+            return $this->failure('Reel ID is Not Found.');
+        }
+        $reel->increment('clicks');
+        return $this->success('Clicks Added Successfully.', [
+            'clicks' => $reel->clicks
+        ]);
+    }
 
     public function CampainAddViews(Request $request) {
         $validator = Validator::make($request->all(),  [
