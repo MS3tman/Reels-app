@@ -1,0 +1,107 @@
+<?php
+
+use App\Http\Controllers\AnalysisController;
+use Pusher\Pusher;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Reel\ReelsController;
+use App\Http\Controllers\StatisticsController;
+use App\Http\Controllers\TestController;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "api" middleware group. Make something great!
+|
+*/
+
+Route::post('like', [TestController::class, 'test']);
+
+Route::pattern('token', '[a-zA-Z0-9]{60}');
+//Route::pattern('id', '[0-9]');
+
+
+Route::get('pusher', function () {
+    return view('welcome');
+});
+
+Route::get('/trigger-alert', function (Request $r) {
+    if($r->filled('msg')){
+        pusher(['message' => $r->msg]);
+    }
+    return view('send');
+});
+
+Route::get('country/all', [HomeController::class, 'CountriesList']);
+Route::get('category/all', [HomeController::class, 'CategoriesList']);
+
+
+
+Route::prefix('auth')->middleware('guest:sanctum')->group( function(){
+    Route::post('login', [LoginController::class, 'login']);
+    Route::post('register', [LoginController::class, 'register']);
+    Route::get('register-verify/{token}', [LoginController::class, 'verifyRegister'])->name('verify_register');
+    Route::get('register-retry/{token}', [LoginController::class, 'retryRegister'])->name('retry_register');
+    Route::post('forget-password', [LoginController::class, 'forgetPassword']);
+    Route::post('check-code/{token}', [LoginController::class, 'checkCode'])->name('check_code');;    
+    Route::post('reset-password/{token}', [LoginController::class, 'resetPassword'])->name('reset_password');    
+});
+
+Route::middleware('auth:sanctum')->group(function(){
+
+    Route::post('logout', [LoginController::class, 'logout']);
+
+    Route::group(['prefix'=>'reel'], function(){
+        Route::post('create/chunk', [ReelsController::class, 'uploadChunks']);
+        
+        
+        Route::post('comments/{reelId}', [ReelsController::class, 'reelsCommentsList']);
+        Route::post('comments/{reelId}/add', [ReelsController::class, 'reelsCommentsAdd']);
+        Route::delete('comments/{reelId}/delete/{id}', [ReelsController::class, 'reelsCommentsDelete']);
+        
+
+        Route::get('list', [ReelsController::class, 'reelList']);
+        Route::post('', [ReelsController::class, 'ReelAddNew']);
+        Route::put('{id}', [ReelsController::class, 'ReelUpdateStatus']);
+        Route::post('views', [ReelsController::class, 'CampainAddViews']);
+        Route::post('love', [ReelsController::class, 'ReeTogglelLove']);
+        Route::post('like', [ReelsController::class, 'ReelToggleLike']);
+        Route::post('click', [ReelsController::class, 'ReelToggleClick']);
+        Route::post('favourite', [ReelsController::class, 'ReelToggleFavourite']);
+        Route::get('{reelId}/comments', [ReelsController::class, 'reelsCommentsList']);
+        Route::post('{reelId}/comments', [ReelsController::class, 'reelsCommentsAdd']);
+        Route::delete('{reelId}/comments/{id}', [ReelsController::class, 'reelsCommentsDelete']);
+        Route::post('{reelId}/comment/love/{id}', [ReelsController::class, 'CommentToggleHeart']);
+    });
+
+    Route::group(['prefix'=>'statistics'], function(){
+        Route::get('info', [StatisticsController::class, 'info']);
+        Route::get('reel', [StatisticsController::class, 'reel']);
+    });
+
+    Route::group(['prefix'=>'analysis'], function(){
+        Route::get('info/{id}', [AnalysisController::class, 'info']);
+        Route::post('renew', [AnalysisController::class, 'newCampain']);
+        Route::get('view-chart/{id}', [AnalysisController::class, 'viewChart']);
+        Route::put('view-status/{id}', [AnalysisController::class, 'viewStatus']);
+        Route::get('coupon-chart/{id}', [AnalysisController::class, 'couponChart']);
+        Route::get('coupon-list/{id}', [AnalysisController::class, 'couponList']);
+        Route::get('reel-countries-analysis', [AnalysisController::class, 'reelCountriesAnalysis']);
+    });
+
+    Route::group(['prefix'=>'settings'], function(){
+
+    });
+	
+    
+    
+
+});
+
+

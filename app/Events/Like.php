@@ -24,7 +24,7 @@ class Like implements ShouldBroadcast
     public function broadcastOn()
     {
         return [
-            new PrivateChannel('channel-name'),
+            new PrivateChannel('real-action'),
         ];
     }
 

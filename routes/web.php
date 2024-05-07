@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('ts', function () {
-    echo generateRandomCoupon();
-});
+//Route::get('ts', function () {
+  //  echo generateRandomCoupon();
+//});
 
+//Route::post('test', [TestController::class, 'test']);
